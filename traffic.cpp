@@ -8,7 +8,8 @@ void print_Road_Top(int vertical_0[], int vertical_1[], int vertical_2[], int ve
 
 int readInputSize(string file_name);
 
-void readInput(string file_name, int road_size, int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[] );
+void populateRoad(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[],
+                  int horizontal_0[], int horizontal_1[] ,int horizontal_2[] , int horizontal_3[]);
 
 int main(){
   
@@ -46,7 +47,8 @@ int main(){
   int vertical_2 [road_size];
   int vertical_3 [road_size];
 
-  readInput(file_name, road_size, vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3);
+  populateRoad(vertical_0, vertical_1, vertical_2, vertical_3,
+               horizontal_0, horizontal_1, horizontal_2, horizontal_3);
 
   print_Road_Top(vertical_0, vertical_1, vertical_2, vertical_3, road_size);
   std::cout<< "The project is fine! \n" ;
@@ -82,6 +84,80 @@ int readInputSize(string file_name){
 
   return road_size;
 }
+
+
+void populateRoad(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[],
+                  int horizontal_0[], int horizontal_1[] ,int horizontal_2[] , int horizontal_3[]){
+
+  //readfile
+  fstream file;
+  vector<string> row;
+
+  file.open("sample.csv");
+
+  string line;
+  int spot = -1;
+
+  while (getline( file, line, '\n')){
+
+    spot++;
+
+    row.clear();
+
+    istringstream templine(line);
+    string data;
+
+    while ( getline( templine, data, ',') ){
+      row.push_back(data);
+    }
+
+    if(spot<5 || spot>8){
+
+      int start = ((row.size()+1)-4)/2;
+      int end = start+4;
+
+      for( int i=start; i<end; i++){
+
+        if( i == 5){
+          vertical_0[spot] = stoi(row[i]);
+        }
+        else if( i == 6){
+          vertical_1[spot] = stoi(row[i]);
+        }
+        else if(i == 7){
+          vertical_2[spot] = stoi(row[i]);
+        }
+        else{
+          vertical_3[spot] = stoi(row[i]);
+        }
+
+      }
+    }
+    else{
+
+      for( int i = 0; i<row.size(); i++){
+
+        if(spot == 5){
+          horizontal_0[i] = stoi(row[i]);
+        }
+        else if(spot == 6){
+          horizontal_1[i] = stoi(row[i]);
+        }
+        else if(spot == 7){
+          horizontal_2[i] = stoi(row[i]);
+        }
+        else{
+          horizontal_3[i] = stoi(row[i]);
+        }
+    }
+
+  }
+}
+
+  file.close();
+
+}
+
 
 void readInput(string file_name, int road_size, int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[]){
   int section_xy = (road_size - 4)/2;
