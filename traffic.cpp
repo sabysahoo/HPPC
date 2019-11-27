@@ -5,9 +5,9 @@
 
 using namespace std; 
 
-void print_Road_Top(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[],  int road_size);
+void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[],  int road_size);
 
-void showRoads(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[] ,int horizontal_2[] , int horizontal_3[], int road_size);
+void printRoadData(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[] ,int horizontal_2[] , int horizontal_3[], int road_size);
 
 void readInput(string file_name, int road_size, int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[] );
 
@@ -51,16 +51,16 @@ int main(int argc, char** argv){
 
   readInput(file_name, road_size, vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3);
 
-  print_Road_Top(vertical_0, vertical_1, vertical_2, vertical_3, road_size);
+  printRoadTop(vertical_0, vertical_1, vertical_2, vertical_3, road_size);
 
-  showRoads(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size);
+  printRoadData(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size);
 
   cout<< "The project seems fine! \n" ;
 
   return 0;
 }
 
-void print_Road_Top(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[],  int road_size){
+void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[],  int road_size){
   int section_xy = (road_size - 4)/2;
   for(int i= 0; i < section_xy; i++){
     for(int j= 0; j < section_xy; j++){
@@ -130,7 +130,7 @@ void readInput(string file_name, int road_size, int vertical_0[], int vertical_1
   }
 }
 
-void showRoads(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[] ,int horizontal_2[] , int horizontal_3[], int road_size){
+void printRoadData(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[] ,int horizontal_2[] , int horizontal_3[], int road_size){
   //show road
   cout << "Vertical Lanes: \n";
   for( int i = 0; i<road_size; i++){
