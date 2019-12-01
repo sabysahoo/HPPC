@@ -1,0 +1,9 @@
+# Mac file
+*.DS_Store
+
+# Tex generated files
+Report/*.aux
+Report/*.bbl
+Report/*.blg
+Report/*.log
+Report/*.synctex.gz
