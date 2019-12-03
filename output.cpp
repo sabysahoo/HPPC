@@ -1,6 +1,8 @@
 #include <iostream>
 #include "header.h"
+
 using namespace std; 
+
 
 void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[],  int road_size){
   int section_xy = (road_size - 4)/2;
@@ -19,6 +21,29 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
   }
 }
 
+
+/*
+* printRoadData - Reads the street arrays and prints the result.
+*
+* Args:
+*   int vertical_0[]: array representing the (relative) right lane
+*     of the south-bound road
+*   int vertical_1[]: array representing the (relative) left lane
+*     of the south-bound road
+*   int vertical_2[]: array representing the (relative) left lane
+*     of the north-bound road
+*   int vertical_3[]: array representing the (relative) right lane
+*     of the north-bound road
+*   int horizontal_0[]: array representing the (relative) right lane
+*     of the west-bound road
+*   int horizontal_1[]: array representing the (relative) left lane
+*     of the west-bound road
+*   int horizontal_2[]: array representing the (relative) left lane
+*     of the east-bound road
+*   int horizontal_3[]: array representing the (relative) right lane
+*     of the east-bound road.
+*   int road_size: size of the road
+*/
 void printRoadData(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[] ,int horizontal_2[] , int horizontal_3[], int road_size){
   //show road
   cout << "Vertical Lanes: \n";
