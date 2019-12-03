@@ -7,3 +7,6 @@ Report/*.bbl
 Report/*.blg
 Report/*.log
 Report/*.synctex.gz
+
+# C++ Executable
+traffic
