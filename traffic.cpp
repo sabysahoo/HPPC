@@ -93,6 +93,29 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
     }
     horizontal_2[0] = 0;
     horizontal_3[0] = 0;
+    // vertical 0, 1 --- lower part
+    if(vertical_0[road_size-1]>0){
+        total_cars--;
+    }
+    if(vertical_1[road_size-1]>0){
+        total_cars--;
+    }
+    for(int i = road_size-1; i>=((road_size-1)-section_xy); i--){
+      vertical_0[i] = vertical_0[i-1];
+      vertical_1[i] = vertical_1[i-1];
+    }
+    // vertical 0, 1 --- upper part
+    for(int i = intesection_crossing_point; i>=1; i--){
+      if(vertical_0[i] == 0){
+        vertical_0[i] = vertical_0[i-1];
+        vertical_0[i-1] = 0;
+      }
+      if(vertical_1[i] == 0){
+        vertical_1[i] = vertical_1[i-1];
+        vertical_1[i-1] = 0;
+      }
+    }
+
   } else if(light_holder[1] == green && light_state == false) {
     if(horizontal_2[road_size-1]>0){
         total_cars--;
@@ -109,13 +132,36 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
     for(int i = intesection_crossing_point; i>=1; i--){
       if(horizontal_2[i] == 0){
         horizontal_2[i] = horizontal_2[i-1];
+        horizontal_2[i-1] = 0;
       }
       if(horizontal_3[i] == 0){
         horizontal_3[i] = horizontal_3[i-1];
+        horizontal_3[i-1] = 0;
       }
     }
-    horizontal_2[0] = 0;
-    horizontal_3[0] = 0;
+
+    // vertical 0, 1
+    if(vertical_0[road_size-1]>0){
+        total_cars--;
+    }
+    if(vertical_1[road_size-1]>0){
+        total_cars--;
+    }
+    for(int i = road_size-1; i>=((road_size-1)-section_xy); i--){
+      vertical_0[i] = vertical_0[i-1];
+      vertical_1[i] = vertical_1[i-1];
+    }
+    // vertical 0, 1 --- upper part
+    for(int i = intesection_crossing_point; i>=1; i--){
+      if(vertical_0[i] == 0){
+        vertical_0[i] = vertical_0[i-1];
+        vertical_0[i-1] = 0;
+      }
+      if(vertical_1[i] == 0){
+        vertical_1[i] = vertical_1[i-1];
+        vertical_1[i-1] = 0;
+      }
+    }
   }
     printRoadData(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size);
   cout<< "No. of cars exited are: " << total_cars << endl;
