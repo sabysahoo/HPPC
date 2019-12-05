@@ -17,6 +17,7 @@ const int green = 1;
 
 // Total number of cars from the input.
 int total_cars = 0;
+int total_cars_2 = 0;
 
 void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, int east_light, int west_light, int north_light, int south_light);
 
@@ -55,14 +56,14 @@ int main(int argc, char** argv){
   int vertical_0 [road_size], vertical_1 [road_size], vertical_2 [road_size], vertical_3 [road_size];
 
   total_cars = readInput(file_name, road_size, total_cars, vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3);
-
+  total_cars_2 = total_cars;
   //printRoadTop(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size, light_holder);
 
   //printRoadData(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size);
 
   startSimulation(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size, east_light, west_light, north_light, south_light);
 
-  cout<< "The project seems fine! The total_cars are: " << total_cars << "\n";
+  cout<< "The project seems fine! The total_cars are: " << total_cars_2 << "\n";
 
   return 0;
 }
@@ -354,7 +355,7 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
   }
   //printRoadData(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size);
   printRoadTop(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size, light_holder, light_state);
-  cout<< "No. of cars exited are: " << total_cars << endl;
+  cout<< "No. of cars exited are: " << total_cars_2-total_cars << endl;
   cout<< "Light states are: " << "W:"<< light_holder[0] << "S:"<< light_holder[1] << "E:"<< light_holder[2] << "N:"<< light_holder[3] << endl;
   return 0;
 }
