@@ -91,9 +91,9 @@ int main(int argc, char** argv){
 *   int south_light: color of the south light
 */
 void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, int east_light, int west_light, int north_light, int south_light){
-  int sleep_time = 3;
-  int light_time = sleep_time * 2;  // At green light two states are passed
-  int clear_time = sleep_time * 4;
+  int sleep_time = 3;   // Time for each state completion
+  int light_time = sleep_time * 2;  // Green light total time = [each state time]*[factor]
+  int clear_time = sleep_time * 4;  // Yellow light time = [each state time]*[factor = 4] as 4 states have to clear out
   int local_time = 0;
   bool light_holder[4] = {west_light, south_light, east_light, north_light};
   bool light_state = true;  // this is the clear if false
@@ -115,7 +115,6 @@ void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int v
     sleep(sleep_time);
   }
 }
-
 
 /*
 * performStateSimulation - Performs the simulation, and prints the
