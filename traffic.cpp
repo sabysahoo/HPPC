@@ -17,7 +17,7 @@ const int right_car = 3;
 
 /* Traffic Light States:
 * 0: Red Light
-* 1: Green Light 
+* 1: Green Light
 */
 const int red = 0;
 const int green = 1;
@@ -60,7 +60,7 @@ int main(int argc, char** argv){
   bool north_light = red;
   bool south_light = red;
 
-  
+
   // Initialize streets
   int horizontal_0 [road_size], horizontal_1 [road_size], horizontal_2 [road_size], horizontal_3 [road_size];
   int vertical_0 [road_size], vertical_1 [road_size], vertical_2 [road_size], vertical_3 [road_size];
@@ -165,7 +165,7 @@ void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int v
 */
 int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, bool light_holder[], bool light_state){
   int section_xy = (road_size - 4)/2;
-  int intersection_crossing_point = section_xy-1;
+  int intesection_crossing_point = section_xy-1;
   if(light_holder[0] == green && light_state == true){
     if(horizontal_2[road_size-1]>0){
         total_cars--;
@@ -218,7 +218,7 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
     }
     horizontal_2[section_xy] = 0;
     horizontal_3[section_xy] = 0;
-    for(int i = intersection_crossing_point; i>=1; i--){
+    for(int i = intesection_crossing_point; i>=1; i--){
       if(horizontal_2[i] == 0){
         horizontal_2[i] = horizontal_2[i-1];
         horizontal_2[i-1] = 0;
