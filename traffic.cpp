@@ -4,6 +4,12 @@
 #include <unistd.h>
 using namespace std;
 
+#define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
+#define RESET     "\033[0m"
+#define BLUE    "\033[34m"      /* Blue */
+#define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
+
+
 /* Cars States:
 * 0: No Car
 * 1: Car moving straight
@@ -104,13 +110,13 @@ int main(int argc, char** argv){
 *   int south_light: color of the south light
 */
 void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, int east_light, int west_light, int north_light, int south_light){
-  int sleep_time = 1;   // Time for each state completion
-  int light_time = sleep_time * 2;  // Green light total time = [each state time]*[factor]
+  int sleep_time = 0.1;   // Time for each state completion
+  int light_time = sleep_time * 6;  // Green light total time = [each state time]*[factor]
   int clear_time = sleep_time * 4;  // Yellow light time = [each state time]*[factor = 4] as 4 states have to clear out
   int local_time = 0;
   bool light_holder[4] = {west_light, south_light, east_light, north_light};
   bool light_state = true;  // this is the clear if false
-  while(total_cars > 0 ){
+  while(total_cars > 1 ){
     if(local_time == light_time && light_state == true){
       local_time = 0;
       bool light_store_last = light_holder[3];
@@ -163,227 +169,251 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
   int section_xy = (road_size - 4)/2;
   int intesection_crossing_point = section_xy-1;
   if(light_holder[0] == green && light_state == true){
-    if(horizontal_2[road_size-1]>0){
-        total_cars--;
-    }
-    if(horizontal_3[road_size-1]>0){
-        total_cars--;
-    }
-    for(int i = road_size-1; i>=1; i--){
-      if( i == section_xy+1 && horizontal_3[i-1] == 2 ){
+      if(horizontal_2[road_size-1]>0){
+          total_cars--;
+      }
+      if(horizontal_3[road_size-1]>0){
+          total_cars--;
+      }
+      for(int i = road_size-1; i>=1; i--){
+        if( i == section_xy+3 && horizontal_2[i-1] == 3 ){
+      vertical_2[section_xy+2] = horizontal_2[i-1];
+      horizontal_2[i-1] = 0;
+        } 
+        if( i == section_xy+1 && horizontal_3[i-1] == 2 ){
+          horizontal_2[i] = horizontal_2[i-1];
+          horizontal_3[i] = horizontal_3[i-1];
+          vertical_0[((road_size-2)-intesection_crossing_point)] = horizontal_3[i-1];
+          horizontal_3[i] = 0;
+        } else {
         horizontal_2[i] = horizontal_2[i-1];
         horizontal_3[i] = horizontal_3[i-1];
-        vertical_0[((road_size-2)-intesection_crossing_point)] = horizontal_3[i-1];
-        horizontal_3[i] = 0;
-      } else {
-      horizontal_2[i] = horizontal_2[i-1];
-      horizontal_3[i] = horizontal_3[i-1];
+        }
       }
-    }
-    horizontal_2[0] = 0;
-    horizontal_3[0] = 0;
-    // vertical 2, 3 --- upper part
-    clearV2V3Ends(vertical_2, vertical_3, section_xy);
-    // horizontal 0,1 left part
-    clearH0H1Ends(horizontal_0, horizontal_1, section_xy);
-    // vertical 0, 1 --- lower part
-    clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
-    // vertical 0, 1 --- upper part
-    clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
-     // horizontal 0, 1 --- right part
-    clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
-    // vertical 2, 3 --- lower part
-    clearV2V3Fronts(vertical_2, vertical_3, horizontal_3, road_size, intesection_crossing_point, section_xy);
+      horizontal_2[0] = 0;
+      horizontal_3[0] = 0;
+      // vertical 2, 3 --- upper part
+      clearV2V3Ends(vertical_2, vertical_3, section_xy);
+      // horizontal 0,1 left part
+      clearH0H1Ends(horizontal_0, horizontal_1, section_xy);
+      // vertical 0, 1 --- lower part
+      clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
+      // vertical 0, 1 --- upper part
+      clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
+       // horizontal 0, 1 --- right part
+      clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
+      // vertical 2, 3 --- lower part
+      clearV2V3Fronts(vertical_2, vertical_3, horizontal_3, road_size, intesection_crossing_point, section_xy);
   } else if(light_holder[1] == green && light_state == false) {
-    if(horizontal_2[road_size-1]>0){
-        total_cars--;
-    }
-    if(horizontal_3[road_size-1]>0){
-        total_cars--;
-    }
+      if(horizontal_2[road_size-1]>0){
+          total_cars--;
+      }
+      if(horizontal_3[road_size-1]>0){
+          total_cars--;
+      }
 
-    for(int i = road_size-1; i>=section_xy+1; i--){
-      if( i == section_xy+1 && horizontal_3[i-1] == 2 ){
+      for(int i = road_size-1; i>=section_xy+1; i--){
+        if( i == section_xy+3 && horizontal_2[i-1] == 3 ){
+      vertical_2[section_xy+2] = horizontal_2[i-1];
+      horizontal_2[i-1] = 0;
+        }
+        if( i == section_xy+1 && horizontal_3[i-1] == 2 ){
+          horizontal_2[i] = horizontal_2[i-1];
+          vertical_0[((road_size-2)-intesection_crossing_point)] = horizontal_3[i-1];
+          horizontal_3[i] = 0;
+        } else {
         horizontal_2[i] = horizontal_2[i-1];
-        vertical_0[((road_size-2)-intesection_crossing_point)] = horizontal_3[i-1];
-        horizontal_3[i] = 0;
-      } else {
-      horizontal_2[i] = horizontal_2[i-1];
-      horizontal_3[i] = horizontal_3[i-1];
-      }
-    }
-    horizontal_2[section_xy] = 0;
-    horizontal_3[section_xy] = 0;
-    for(int i = intesection_crossing_point; i>=1; i--){
-      if(horizontal_2[i] == 0){
-        horizontal_2[i] = horizontal_2[i-1];
-        horizontal_2[i-1] = 0;
-      }
-      if(horizontal_3[i] == 0){
         horizontal_3[i] = horizontal_3[i-1];
-        horizontal_3[i-1] = 0;
+        }
       }
-    }
-    // vertical 2, 3 --- upper part
-    clearV2V3Ends(vertical_2, vertical_3, section_xy);
-    // horizontal 0,1 left part
-    clearH0H1Ends(horizontal_0, horizontal_1, section_xy);    
-    // vertical 0, 1
-    clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
-    // vertical 0, 1 --- upper part
-    clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
-    // horizontal 0, 1 --- right part
-    clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
-    // vertical 2, 3 --- lower part
-    clearV2V3Fronts(vertical_2, vertical_3, horizontal_3, road_size, intesection_crossing_point, section_xy);
+      horizontal_2[section_xy] = 0;
+      horizontal_3[section_xy] = 0;
+      for(int i = intesection_crossing_point; i>=1; i--){
+        if(horizontal_2[i] == 0){
+          horizontal_2[i] = horizontal_2[i-1];
+          horizontal_2[i-1] = 0;
+        }
+        if(horizontal_3[i] == 0){
+          horizontal_3[i] = horizontal_3[i-1];
+          horizontal_3[i-1] = 0;
+        }
+      }
+      // vertical 2, 3 --- upper part
+      clearV2V3Ends(vertical_2, vertical_3, section_xy);
+      // horizontal 0,1 left part
+      clearH0H1Ends(horizontal_0, horizontal_1, section_xy);    
+      // vertical 0, 1
+      clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
+      // vertical 0, 1 --- upper part
+      clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
+      // horizontal 0, 1 --- right part
+      clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
+      // vertical 2, 3 --- lower part
+      clearV2V3Fronts(vertical_2, vertical_3, horizontal_3, road_size, intesection_crossing_point, section_xy);
   } else if(light_holder[1] == green && light_state == true){
-    if(vertical_2[0]>0){
-        total_cars--;
-    }
-    if(vertical_3[0]>0){
-        total_cars--;
-    }
-    for(int i = 0; i<=road_size-2; i++){
-      if( i == section_xy+2 && vertical_3[section_xy+3] == 2){
+      if(vertical_2[0]>0){
+          total_cars--;
+      }
+      if(vertical_3[0]>0){
+          total_cars--;
+      }
+      for(int i = 0; i<=road_size-2; i++){
+        if( i == section_xy && vertical_2[i+1] == 3 ){
+      horizontal_1[section_xy+2] = vertical_2[i+1];
+      vertical_2[i+1] = 0;
+        } 
+        if( i == section_xy+2 && vertical_3[section_xy+3] == 2){
+          vertical_2[i] = vertical_2[i+1];
+          vertical_3[i] = vertical_3[i+1];
+          horizontal_3[((road_size-2)-intesection_crossing_point)] = vertical_3[i+1];
+          vertical_3[i] = 0;
+        } else {
         vertical_2[i] = vertical_2[i+1];
         vertical_3[i] = vertical_3[i+1];
-        horizontal_3[((road_size-2)-intesection_crossing_point)] = vertical_3[i+1];
-        vertical_3[i] = 0;
-      } else {
-      vertical_2[i] = vertical_2[i+1];
-      vertical_3[i] = vertical_3[i+1];
+        }
       }
-    }
-    vertical_2[road_size-1] = 0;
-    vertical_3[road_size-1] = 0;
-    // horizontal 2, 3 left part
-    clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
-    // horizontal 0, 1 --- left part
-    clearH0H1Ends(horizontal_0, horizontal_1, section_xy);
-    // vertical 0, 1 --- lower part
-    clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
-    // vertical 0, 1 --- upper part
-    clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
-    // horizontal 2, 3 --- right part
-    clearH2H3Fronts(horizontal_2, horizontal_3, vertical_0, intesection_crossing_point);
-    // horizontal 0, 1 --- right part
-    clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
+      vertical_2[road_size-1] = 0;
+      vertical_3[road_size-1] = 0;
+      // horizontal 2, 3 left part
+      clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
+      // horizontal 0, 1 --- left part
+      clearH0H1Ends(horizontal_0, horizontal_1, section_xy);
+      // vertical 0, 1 --- lower part
+      clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
+      // vertical 0, 1 --- upper part
+      clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
+      // horizontal 2, 3 --- right part
+      clearH2H3Fronts(horizontal_2, horizontal_3, vertical_0, intesection_crossing_point);
+      // horizontal 0, 1 --- right part
+      clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
   } else if(light_holder[2] == green && light_state == false){
-    if(vertical_2[0]>0){
-        total_cars--;
-    }
-    if(vertical_3[0]>0){
-        total_cars--;
-    }
-    for(int i = 0; i<=((road_size-2)-section_xy); i++){
-      if( i == section_xy+2 && vertical_3[section_xy+3] == 2){
+      if(vertical_2[0]>0){
+          total_cars--;
+      }
+      if(vertical_3[0]>0){
+          total_cars--;
+      }
+      for(int i = 0; i<=((road_size-2)-section_xy); i++){
+        if( i == section_xy && vertical_2[i+1] == 3 ){
+      horizontal_1[section_xy+2] = vertical_2[i+1];
+      vertical_2[i+1] = 0;
+        }         
+        if( i == section_xy+2 && vertical_3[section_xy+3] == 2){
+          vertical_2[i] = vertical_2[i+1];
+          vertical_3[i] = vertical_3[i+1];
+          horizontal_3[((road_size-2)-intesection_crossing_point)] = vertical_3[i+1];
+          vertical_3[i] = 0;
+        } else {
         vertical_2[i] = vertical_2[i+1];
         vertical_3[i] = vertical_3[i+1];
-        horizontal_3[((road_size-2)-intesection_crossing_point)] = vertical_3[i+1];
-        vertical_3[i] = 0;
-      } else {
-      vertical_2[i] = vertical_2[i+1];
-      vertical_3[i] = vertical_3[i+1];
+        }
       }
-    }
-    vertical_2[((road_size-1)-section_xy)] = 0;
-    vertical_3[((road_size-1)-section_xy)] = 0;
-    for(int i = ((road_size-1)-intesection_crossing_point); i<=road_size-2; i++){
-      if(vertical_2[i] == 0){
-        vertical_2[i] = vertical_2[i+1];
-        vertical_2[i+1] = 0;
+      vertical_2[((road_size-1)-section_xy)] = 0;
+      vertical_3[((road_size-1)-section_xy)] = 0;
+      for(int i = ((road_size-1)-intesection_crossing_point); i<=road_size-2; i++){
+        if(vertical_2[i] == 0){
+          vertical_2[i] = vertical_2[i+1];
+          vertical_2[i+1] = 0;
+        }
+        if(vertical_3[i] == 0){
+          vertical_3[i] = vertical_3[i+1];
+          vertical_3[i+1] = 0;
+        }
       }
-      if(vertical_3[i] == 0){
-        vertical_3[i] = vertical_3[i+1];
-        vertical_3[i+1] = 0;
-      }
-    }
-    // horizontal 0, 1 --- left part
-    clearH0H1Ends(horizontal_0, horizontal_1, section_xy);
-    // horizontal 2, 3 left part
-    clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
-    // vertical 0, 1
-    clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
-    // vertical 0, 1 --- upper part
-    clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
-    // horizontal 2, 3 --- right part
-    clearH2H3Fronts(horizontal_2, horizontal_3, vertical_0, intesection_crossing_point);
-    // horizontal 0, 1 --- right part
-    clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
+      // horizontal 0, 1 --- left part
+      clearH0H1Ends(horizontal_0, horizontal_1, section_xy);
+      // horizontal 2, 3 left part
+      clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
+      // vertical 0, 1
+      clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
+      // vertical 0, 1 --- upper part
+      clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
+      // horizontal 2, 3 --- right part
+      clearH2H3Fronts(horizontal_2, horizontal_3, vertical_0, intesection_crossing_point);
+      // horizontal 0, 1 --- right part
+      clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
   } else if(light_holder[2] == green && light_state == true){
-    if(horizontal_0[0]>0){
-        total_cars--;
-    }
-    if(horizontal_1[0]>0){
-        total_cars--;
-    }
-    for(int i = 0; i<=road_size-2; i++){
-      if(i == section_xy+2 && horizontal_0[section_xy+3] == 2){
+      if(horizontal_0[0]>0){
+          total_cars--;
+      }
+      if(horizontal_1[0]>0){
+          total_cars--;
+      }
+      for(int i = 0; i<=road_size-2; i++){
+        if( i == section_xy && horizontal_1[i+1] == 3 ){
+      vertical_1[section_xy+1] = horizontal_1[i+1];
+      horizontal_1[i+1] = 0;
+        }         
+        if(i == section_xy+2 && horizontal_0[section_xy+3] == 2){
+          horizontal_0[i] = horizontal_0[i+1];
+          horizontal_1[i] = horizontal_1[i+1];
+          vertical_3[intesection_crossing_point+1] = horizontal_0[i+1];
+          horizontal_0[i] = 0;
+        } else {
         horizontal_0[i] = horizontal_0[i+1];
         horizontal_1[i] = horizontal_1[i+1];
-        vertical_3[intesection_crossing_point+1] = horizontal_0[i+1];
-        horizontal_0[i] = 0;
-      } else {
-      horizontal_0[i] = horizontal_0[i+1];
-      horizontal_1[i] = horizontal_1[i+1];
+        }
       }
-    }
-    horizontal_0[road_size-1] = 0;
-    horizontal_1[road_size-1] = 0;
-    // vertical 2, 3 --- upper part
-    clearV2V3Ends(vertical_2, vertical_3, section_xy);
-    // horizontal 2, 3 left part
-    clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
-    // vertical 0, 1 --- lower part
-    clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
-    // vertical 0, 1 --- upper part
-    clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
-    // horizontal 2, 3 --- right part
-    clearH2H3Fronts(horizontal_2, horizontal_3, vertical_0, intesection_crossing_point);
-    // vertical 2, 3 --- lower part
-    clearV2V3Fronts(vertical_2, vertical_3, horizontal_3, road_size, intesection_crossing_point, section_xy);
+      horizontal_0[road_size-1] = 0;
+      horizontal_1[road_size-1] = 0;
+      // vertical 2, 3 --- upper part
+      clearV2V3Ends(vertical_2, vertical_3, section_xy);
+      // horizontal 2, 3 left part
+      clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
+      // vertical 0, 1 --- lower part
+      clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
+      // vertical 0, 1 --- upper part
+      clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
+      // horizontal 2, 3 --- right part
+      clearH2H3Fronts(horizontal_2, horizontal_3, vertical_0, intesection_crossing_point);
+      // vertical 2, 3 --- lower part
+      clearV2V3Fronts(vertical_2, vertical_3, horizontal_3, road_size, intesection_crossing_point, section_xy);
   } else if(light_holder[3] == green && light_state == false){
-    if(horizontal_0[0]>0){
-        total_cars--;
-    }
-    if(horizontal_1[0]>0){
-        total_cars--;
-    }
-    for(int i = 0; i<=((road_size-2)-section_xy); i++){
-      if(i == section_xy+2 && horizontal_0[section_xy+3] == 2){
+      if(horizontal_0[0]>0){
+          total_cars--;
+      }
+      if(horizontal_1[0]>0){
+          total_cars--;
+      }
+      for(int i = 0; i<=((road_size-2)-section_xy); i++){
+        if( i == section_xy && horizontal_1[i+1] == 3 ){
+      vertical_1[section_xy+1] = horizontal_1[i+1];
+      horizontal_1[i+1] = 0;
+        }         
+        if(i == section_xy+2 && horizontal_0[section_xy+3] == 2){
+          horizontal_0[i] = horizontal_0[i+1];
+          horizontal_1[i] = horizontal_1[i+1];
+          vertical_3[intesection_crossing_point+1] = horizontal_0[i+1];
+          horizontal_0[i] = 0;
+        } else {
         horizontal_0[i] = horizontal_0[i+1];
         horizontal_1[i] = horizontal_1[i+1];
-        vertical_3[intesection_crossing_point+1] = horizontal_0[i+1];
-        horizontal_0[i] = 0;
-      } else {
-      horizontal_0[i] = horizontal_0[i+1];
-      horizontal_1[i] = horizontal_1[i+1];
+        }
       }
-    }
-    horizontal_0[((road_size-1)-section_xy)] = 0;
-    horizontal_1[((road_size-1)-section_xy)] = 0;
-    for(int i = ((road_size-1)-intesection_crossing_point); i<=road_size-2; i++){
-      if(horizontal_0[i] == 0){
-        horizontal_0[i] = horizontal_0[i+1];
-        horizontal_0[i+1] = 0;
+      horizontal_0[((road_size-1)-section_xy)] = 0;
+      horizontal_1[((road_size-1)-section_xy)] = 0;
+      for(int i = ((road_size-1)-intesection_crossing_point); i<=road_size-2; i++){
+        if(horizontal_0[i] == 0){
+          horizontal_0[i] = horizontal_0[i+1];
+          horizontal_0[i+1] = 0;
+        }
+        if(horizontal_1[i] == 0){
+          horizontal_1[i] = horizontal_1[i+1];
+          horizontal_1[i+1] = 0;
+        }
       }
-      if(horizontal_1[i] == 0){
-        horizontal_1[i] = horizontal_1[i+1];
-        horizontal_1[i+1] = 0;
-      }
-    }
-    // horizontal 2, 3 left part
-    clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
-    // vertical 2, 3 --- upper part
-    clearV2V3Ends(vertical_2, vertical_3, section_xy);
-    // vertical 0, 1
-    clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
-    // vertical 0, 1 --- upper part
-    clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
-    // vertical 2, 3 --- lower part
-    clearV2V3Fronts(vertical_2, vertical_3, horizontal_3, road_size, intesection_crossing_point, section_xy);
-    // horizontal 2, 3 --- right part
-    clearH2H3Fronts(horizontal_2, horizontal_3, vertical_0, intesection_crossing_point);
+      // horizontal 2, 3 left part
+      clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
+      // vertical 2, 3 --- upper part
+      clearV2V3Ends(vertical_2, vertical_3, section_xy);
+      // vertical 0, 1
+      clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
+      // vertical 0, 1 --- upper part
+      clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
+      // vertical 2, 3 --- lower part
+      clearV2V3Fronts(vertical_2, vertical_3, horizontal_3, road_size, intesection_crossing_point, section_xy);
+      // horizontal 2, 3 --- right part
+      clearH2H3Fronts(horizontal_2, horizontal_3, vertical_0, intesection_crossing_point);
   } else if(light_holder[3] == green && light_state == true){
       if(vertical_0[road_size-1]>0){
           total_cars--;
@@ -392,6 +422,10 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
         total_cars--;
       }
       for(int i = road_size-1; i>=1; i--){
+      if( i == section_xy+3 && vertical_1[i-1] == 3 ){
+    horizontal_2[section_xy+1] = vertical_1[i-1];
+    vertical_1[i-1] = 0;
+        }         
         if( i == section_xy+1 && vertical_0[i-1] == 2 ){
         vertical_1[i] = vertical_1[i-1];
         vertical_0[i] = vertical_0[i-1];
@@ -413,52 +447,56 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
       // vertical 2, 3 --- lower part
       clearV2V3Fronts(vertical_2, vertical_3, horizontal_3, road_size, intesection_crossing_point, section_xy);
       clearH2H3Fronts(horizontal_2, horizontal_3, vertical_0, intesection_crossing_point);
-    } else if(light_holder[0] == green && light_state == false){
-    if(vertical_0[road_size-1]>0){
-        total_cars--;
-    }
-    if(vertical_3[road_size-1]>0){
-        total_cars--;
-    }
-    for(int i = road_size-1; i>=section_xy+1; i--){
-      if( i == section_xy+1 && vertical_0[i-1] == 2 ){
-        vertical_1[i] = vertical_1[i-1];
-        vertical_0[i] = vertical_0[i-1];
-        horizontal_0[intesection_crossing_point+1] = vertical_0[i-1];
-        vertical_0[i] = 0;
-      } else {
-        vertical_0[i] = vertical_0[i-1];
-        vertical_1[i] = vertical_1[i-1];
+  } else if(light_holder[0] == green && light_state == false){
+      if(vertical_0[road_size-1]>0){
+          total_cars--;
       }
-    }
-    vertical_0[section_xy] = 0;
-    vertical_1[section_xy] = 0;
+      if(vertical_3[road_size-1]>0){
+          total_cars--;
+      }
+      for(int i = road_size-1; i>=section_xy+1; i--){
+        if( i == section_xy+3 && vertical_1[i-1] == 3 ){
+        horizontal_2[section_xy+1] = vertical_1[i-1];
+      vertical_1[i-1] = 0;
+          }       
+        if( i == section_xy+1 && vertical_0[i-1] == 2 ){
+          vertical_1[i] = vertical_1[i-1];
+          vertical_0[i] = vertical_0[i-1];
+          horizontal_0[intesection_crossing_point+1] = vertical_0[i-1];
+          vertical_0[i] = 0;
+        } else {
+          vertical_0[i] = vertical_0[i-1];
+          vertical_1[i] = vertical_1[i-1];
+        }
+      }
+      vertical_0[section_xy] = 0;
+      vertical_1[section_xy] = 0;
 
-    for(int i = intesection_crossing_point; i>=1; i--){
-      if(vertical_0[i] == 0){
-        vertical_0[i] = vertical_0[i-1];
-        vertical_0[i-1] = 0;
+      for(int i = intesection_crossing_point; i>=1; i--){
+        if(vertical_0[i] == 0){
+          vertical_0[i] = vertical_0[i-1];
+          vertical_0[i-1] = 0;
+        }
+        if(vertical_1[i] == 0){
+          vertical_1[i] = vertical_1[i-1];
+          vertical_1[i-1] = 0;
+        }
       }
-      if(vertical_1[i] == 0){
-        vertical_1[i] = vertical_1[i-1];
-        vertical_1[i-1] = 0;
-      }
-    }
-    // vertical 2, 3 --- upper part
-    clearV2V3Ends(vertical_2, vertical_3, section_xy);
-    clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
-    // horizontal 0,1 left part
-    clearH0H1Ends(horizontal_0, horizontal_1, section_xy);
-    // horizontal 0, 1 --- right part
-    clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
-    // vertical 2, 3 --- lower part
-    clearV2V3Fronts(vertical_2, vertical_3, horizontal_3, road_size, intesection_crossing_point, section_xy);
+      // vertical 2, 3 --- upper part
+      clearV2V3Ends(vertical_2, vertical_3, section_xy);
+      clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
+      // horizontal 0,1 left part
+      clearH0H1Ends(horizontal_0, horizontal_1, section_xy);
+      // horizontal 0, 1 --- right part
+      clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
+      // vertical 2, 3 --- lower part
+      clearV2V3Fronts(vertical_2, vertical_3, horizontal_3, road_size, intesection_crossing_point, section_xy);
 
-    clearH2H3Fronts(horizontal_2, horizontal_3, vertical_0, intesection_crossing_point);
+      clearH2H3Fronts(horizontal_2, horizontal_3, vertical_0, intesection_crossing_point);
   }
   //printRoadData(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size);
   printRoadTop(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size, light_holder, light_state);
-  cout<< "No. of cars exited are: " << total_cars_2-total_cars << endl;
+  cout<< "No. of cars exited are: " << (total_cars_2+1)-total_cars  << endl;
   cout<< "Light states are: " << "W:"<< light_holder[0] << "S:"<< light_holder[1] << "E:"<< light_holder[2] << "N:"<< light_holder[3] << endl;
   return 0;
 }
@@ -473,8 +511,11 @@ void clearV0V1Ends(int vertical_0[], int vertical_1[], int road_size, int sectio
   }
   for(int i = road_size-1; i>=((road_size-1)-section_xy); i--){
     vertical_0[i] = vertical_0[i-1];
+  }
+  for(int i = road_size-1; i>=(section_xy+1); i--){
     vertical_1[i] = vertical_1[i-1];
   }
+  vertical_1[section_xy+1] = 0;
 }
 
 void clearH0H1Ends(int horizontal_0[], int horizontal_1[], int section_xy){
@@ -486,10 +527,12 @@ void clearH0H1Ends(int horizontal_0[], int horizontal_1[], int section_xy){
   }
   for(int i = 0; i<=(section_xy-1); i++){
     horizontal_0[i] = horizontal_0[i+1];
-    horizontal_1[i] = horizontal_1[i+1];
   }
   horizontal_0[section_xy] = 0;
-  horizontal_1[section_xy] = 0;
+  for(int i = 0; i<=(section_xy+2); i++){
+    horizontal_1[i] = horizontal_1[i+1];
+  }
+  horizontal_1[section_xy+2] = 0;
 }
 
 void clearV2V3Ends(int vertical_2[], int vertical_3[], int section_xy){
@@ -500,12 +543,13 @@ void clearV2V3Ends(int vertical_2[], int vertical_3[], int section_xy){
       total_cars--;
   }
   for(int i = 0; i<=(section_xy-1); i++){
-    vertical_2[i] = vertical_2[i+1];
     vertical_3[i] = vertical_3[i+1];
-    // vertical_3[i+1] = 0;
   }
-  vertical_2[section_xy] = 0;
   vertical_3[section_xy] = 0;
+  for(int i = 0; i<=(section_xy+2); i++){
+    vertical_2[i] = vertical_2[i+1];
+  }
+  vertical_2[section_xy+2] = 0;
 }
 
 void clearV0V1Fronts(int vertical_0[], int vertical_1[], int horizontal_0[], int intesection_crossing_point){
@@ -548,7 +592,6 @@ void clearH0H1Fronts(int horizontal_0[], int horizontal_1[], int vertical_3[], i
    // horizontal_1[section_xy] = 0;
 }
 
-
 void clearV2V3Fronts(int vertical_2[], int vertical_3[], int horizontal_3[], int road_size, int intesection_crossing_point, int section_xy){
   bool turn_available = (horizontal_3[section_xy+1] == 0 && horizontal_3[section_xy+2] == 0 && horizontal_3[section_xy+3] == 0);
   if(vertical_3[((road_size-1)-intesection_crossing_point)] == 2 && turn_available){
@@ -575,9 +618,12 @@ void clearH2H3Ends(int horizontal_2[], int horizontal_3[], int road_size, int se
       total_cars--;
   }
   for(int i = road_size-1; i>=((road_size-1)-section_xy); i--){
-    horizontal_2[i] = horizontal_2[i-1];
     horizontal_3[i] = horizontal_3[i-1];
   }
+  for(int i = road_size-1; i>=section_xy+1; i--){
+    horizontal_2[i] = horizontal_2[i-1];
+  }
+  horizontal_2[section_xy+1] = 0;
 }
 
 void clearH2H3Fronts(int horizontal_2[], int horizontal_3[], int vertical_0[], int intesection_crossing_point ){
