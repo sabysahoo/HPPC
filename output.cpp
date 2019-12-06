@@ -1,6 +1,5 @@
 #include <iostream>
 #include "header.h"
-
 using namespace std;
 
 #define RESET   "\033[0m"
@@ -26,13 +25,14 @@ const char *light = u8"\u2B24";
 void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, bool light_holder[], bool light_state){
 
   int section_xy = (road_size - 4)/2;
+  int sectionBegin = section_xy - 8;
 
   //print vertical values for top half ======================================
-  for(int i= 0; i<section_xy; i++){
+  for(int i=sectionBegin; i<section_xy; i++){
 
     cout << WHITE;
 
-    for(int j= 0; j<section_xy+1; j++){
+    for(int j = sectionBegin; j<section_xy+1; j++){
       cout<< " " <<"\t";
     }
 
@@ -80,7 +80,7 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
     cout << WHITE;
 
 
-    for(int j=0; j<section_xy+1; j++){
+    for(int j=sectionBegin; j<section_xy+1; j++){
       cout<< " " <<"\t";
     }
 
@@ -92,19 +92,43 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
 
 
   //print northern lights ============================================
-  if( light_holder[3] == 1 && light_state == true){
-    cout << BOLDGREEN;
-  }
-  else if(light_holder[0] == 1 && light_state == false ){
-    cout << BOLDYELLOW;
-  }
-  else{
-    cout << BOLDRED;
-  }
-  for( int i = 0; i<road_size; i++){
+  for( int i = sectionBegin; i<road_size-sectionBegin; i++){
+
     if( i > section_xy && i < section_xy + 5 ){
-      cout << light << "\t";
-    }
+
+      if( i == section_xy+1 || i == section_xy+2){
+
+          if( light_holder[3] == 1 && light_state == true){
+            cout << BOLDGREEN;
+            cout << light << "\t";
+          }
+          else if( light_holder[0] == 1 && light_state == false){
+            cout << BOLDYELLOW;
+            cout << light << "\t";
+          }
+          else{
+            cout << BOLDRED;
+            cout << light << "\t";
+          }
+      }
+      else{
+
+          if( light_holder[1] == true && light_state == true){
+            cout << BOLDGREEN;
+            cout << light << "\t";
+          }
+          else if( light_holder[2] == true && light_state == false){
+            cout << BOLDYELLOW;
+            cout << light << "\t";
+          }
+          else{
+            cout << BOLDRED;
+            cout << light << "\t";
+          }
+      }
+
+    } //end middle light section
+
     else{
       cout << " " << "\t";
     }
@@ -112,7 +136,6 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
 
   cout<< "\n";
   cout<< "\n";
-
   //====================================================================
 
 
@@ -120,7 +143,7 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
   cout << RESET;
 
   //print h0 lanes
-  for( int i = 0; i<road_size; i++){
+  for( int i = sectionBegin; i<road_size-sectionBegin; i++){
 
     if( horizontal_0[i] > 0){
       cout << BOLDBLACK;
@@ -135,60 +158,38 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
 
     if( (i >= section_xy) && (i < section_xy + 4) ){
 
-      if( (light_holder[0] == 1 && light_state == true) ||  (light_holder[1] == 1 && light_state == false)
-      || (light_holder[2] == 1 && light_state == true)
-      || (light_holder[3] == 1 && light_state == false) ){
+      cout << BOLDBLACK;
+
+      if( horizontal_0[i] > 0){
         cout << horizontal_0[i] << "\t";
       }
-
+      else if( i == section_xy && vertical_0[section_xy] > 0){
+        cout << vertical_0[section_xy] << "\t";
+      }
+      else if( i == section_xy+1 && vertical_1[section_xy] > 0){
+              cout << vertical_1[section_xy] << "\t";
+      }
+      else if( i == section_xy+2 && vertical_2[section_xy] > 0){
+            cout << vertical_2[section_xy] << "\t";
+      }
+      else if( i == section_xy+3 && vertical_3[section_xy] > 0){
+              cout << vertical_3[section_xy] << "\t";
+      }
       else{
-
-        if( i == section_xy){
-          if( vertical_0[section_xy] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_0[section_xy] << "\t";
-        }
-        if( i == section_xy+1){
-          if( vertical_1[section_xy] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_1[section_xy] << "\t";
-        }
-        if( i == section_xy+2){
-          if( vertical_2[section_xy] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_2[section_xy] << "\t";
-        }
-        if( i == section_xy+3){
-          if( vertical_3[section_xy] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_3[section_xy] << "\t";
-        }
+        cout << WHITE;
+        cout << "0" << "\t";
       }
 
     }
 
-    if( i == section_xy-1 ){
+   //end middle print
 
-          if( light_holder[0] == 1 && light_state == true){
+      if( i == section_xy-1 ){
+
+          if( light_holder[2] == 1 && light_state == true){
             cout << BOLDGREEN;
           }
-          else if( light_holder[1] == 1 && light_state == false){
+          else if( light_holder[3] == 1 && light_state == false){
             cout << BOLDYELLOW;
           }
           else{
@@ -226,7 +227,7 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
   cout<< "\n";
 
   //print h1 street
-  for( int i = 0; i<road_size; i++){
+  for( int i = sectionBegin; i<road_size-sectionBegin; i++){
     if( horizontal_1[i] > 0){
       cout << BOLDBLACK;
     }
@@ -239,58 +240,36 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
 
     if( i >= section_xy && i < section_xy + 4){
 
-      if( (light_holder[0] == 1 && light_state == true) ||  (light_holder[1] == 1 && light_state == false)
-      || (light_holder[2] == 1 && light_state == true)
-      || (light_holder[3] == 1 && light_state == false) ){
+      cout << BOLDBLACK;
+
+      if( horizontal_1[i] > 0){
         cout << horizontal_1[i] << "\t";
       }
-
-      else{
-        if( i == section_xy){
-          if( vertical_0[section_xy+1] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_0[section_xy+1] << "\t";
-        }
-        if( i == section_xy+1){
-          if( vertical_1[section_xy+1] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_1[section_xy+1] << "\t";
-        }
-        if( i == section_xy+2){
-          if( vertical_2[section_xy+1] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_2[section_xy+1] << "\t";
-        }
-        if( i == section_xy+3){
-          if( vertical_3[section_xy+1] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_3[section_xy+1] << "\t";
-        }
+      else if( i == section_xy && vertical_0[section_xy+1] > 0){
+        cout << vertical_0[section_xy+1] << "\t";
       }
+      else if( i == section_xy+1 && vertical_1[section_xy+1] > 0){
+              cout << vertical_1[section_xy+1] << "\t";
+      }
+      else if( i == section_xy+2 && vertical_2[section_xy+1] > 0){
+            cout << vertical_2[section_xy+1] << "\t";
+      }
+      else if( i == section_xy+3 && vertical_3[section_xy+1] > 0){
+              cout << vertical_3[section_xy+1] << "\t";
+      }
+      else{
+        cout << WHITE;
+        cout << "0" << "\t";
+      }
+
     }
 
         if( i == section_xy-1 ){
 
-          if( light_holder[0] == 1 && light_state == true){
+          if( light_holder[2] == 1 && light_state == true){
             cout << BOLDGREEN;
           }
-          else if( light_holder[1] == 1 && light_state == false){
+          else if( light_holder[3] == 1 && light_state == false){
             cout << BOLDYELLOW;
           }
           else{
@@ -327,7 +306,7 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
   cout<< "\n";
 
   //print h2 street
-  for( int i = 0; i<road_size; i++){
+  for( int i = sectionBegin; i<road_size-sectionBegin; i++){
     if( horizontal_2[i] > 0){
       cout << BOLDBLACK;
     }
@@ -340,49 +319,28 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
 
     if( i >= section_xy && i < section_xy + 4){
 
-      if( (light_holder[0] == 1 && light_state == true) ||  (light_holder[1] == 1 && light_state == false)
-      || (light_holder[2] == 1 && light_state == true)
-      || (light_holder[3] == 1 && light_state == false) ){
+      cout << BOLDBLACK;
+
+      if( horizontal_2[i] > 0){
         cout << horizontal_2[i] << "\t";
       }
-      else{
-        if( i == section_xy){
-          if( vertical_0[section_xy+2] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_0[section_xy+2] << "\t";
-        }
-        if( i == section_xy+1){
-          if( vertical_1[section_xy+2] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_1[section_xy+2] << "\t";
-        }
-        if( i == section_xy+2){
-          if( vertical_2[section_xy+2] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_2[section_xy+2] << "\t";
-        }
-        if( i == section_xy+3){
-          if( vertical_3[section_xy+2] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_3[section_xy+2] << "\t";
-        }
+      else if( i == section_xy && vertical_0[section_xy+2] > 0){
+        cout << vertical_0[section_xy+2] << "\t";
       }
+      else if( i == section_xy+1 && vertical_1[section_xy+2] > 0){
+              cout << vertical_1[section_xy+2] << "\t";
+      }
+      else if( i == section_xy+2 && vertical_2[section_xy+2] > 0){
+            cout << vertical_2[section_xy+2] << "\t";
+      }
+      else if( i == section_xy+3 && vertical_3[section_xy+2] > 0){
+              cout << vertical_3[section_xy+2] << "\t";
+      }
+      else{
+        cout << WHITE;
+        cout << "0" << "\t";
+      }
+
     }
 
         if( i == section_xy-1 ){
@@ -399,10 +357,10 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
         }
 
         if( i == section_xy+3){
-          if( light_holder[2] == 1 && light_state == true){
+          if( light_holder[0] == 1 && light_state == true){
             cout << BOLDGREEN;
           }
-          else if( light_holder[3] == 1 && light_state == false){
+          else if( light_holder[1] == 1 && light_state == false){
             cout << BOLDYELLOW;
           }
           else{
@@ -427,7 +385,7 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
 
 
   //print h3 street
-  for( int i = 0; i<road_size; i++){
+  for( int i = sectionBegin; i<road_size-sectionBegin; i++){
     if( horizontal_3[i] > 0){
       cout << BOLDBLACK;
     }
@@ -440,49 +398,30 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
 
     if( i >= section_xy && i < section_xy + 4){
 
-      if( (light_holder[0] == 1 && light_state == true) ||  (light_holder[1] == 1 && light_state == false)
-      || (light_holder[2] == 1 && light_state == true)
-      || (light_holder[3] == 1 && light_state == false) ){
+      cout << BOLDBLACK;
+
+      if( horizontal_3[i] > 0){
         cout << horizontal_3[i] << "\t";
       }
-      else{
-        if( i == section_xy){
-          if( vertical_0[section_xy+3] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_0[section_xy+3] << "\t";
-        }
-        if( i == section_xy+1){
-          if( vertical_1[section_xy+3] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_1[section_xy+3] << "\t";
-        }
-        if( i == section_xy+2){
-          if( vertical_2[section_xy+3] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_2[section_xy+3] << "\t";
-        }
-        if( i == section_xy+3){
-          if( vertical_3[section_xy+3] > 0){
-            cout << BOLDBLACK;
-          }
-          else{
-            cout << WHITE;
-          }
-          cout << vertical_3[section_xy+3] << "\t";
-        }
+      else if( i == section_xy && vertical_0[section_xy+3] > 0){
+        cout << vertical_0[section_xy+3] << "\t";
       }
+      else if( i == section_xy+1 && vertical_1[section_xy+3] > 0){
+              cout << vertical_1[section_xy+3] << "\t";
+      }
+      else if( i == section_xy+2 && vertical_2[section_xy+3] > 0){
+            cout << vertical_2[section_xy+3] << "\t";
+      }
+      else if( i == section_xy+3 && vertical_3[section_xy+3] > 0){
+              cout << vertical_3[section_xy+3] << "\t";
+      }
+      else{
+        cout << WHITE;
+        cout << "0" << "\t";
+      }
+
+
+
     }
 
         if( i == section_xy-1 ){
@@ -499,10 +438,10 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
         }
 
         if( i == section_xy+3){
-          if( light_holder[2] == 1 && light_state == true){
+          if( light_holder[0] == 1 && light_state == true){
             cout << BOLDGREEN;
           }
-          else if( light_holder[3] == 1 && light_state == false){
+          else if( light_holder[1] == 1 && light_state == false){
             cout << BOLDYELLOW;
           }
           else{
@@ -529,19 +468,46 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
   // end printing horizontal streets===================================
 
   //print south lights =================================================
-  if( light_holder[1] == 1 && light_state == true){
-    cout << BOLDGREEN;
-  }
-  else if(light_holder[2] == 1 && light_state == false ){
-    cout << BOLDYELLOW;
-  }
-  else{
-    cout << BOLDRED;
-  }
-  for( int i = 0; i<road_size; i++){
+  for( int i = sectionBegin; i<road_size-sectionBegin; i++){
+
     if( i > section_xy && i < section_xy + 5 ){
-      cout << light << "\t";
+
+      if( i == section_xy+1 || i == section_xy+2){
+
+        if( light_holder[3] == true && light_state == true){
+          cout << BOLDGREEN;
+          cout << light << "\t";
+        }
+        else if(light_holder[0] == true && light_state == false){
+          cout << BOLDYELLOW;
+          cout << light << "\t";
+        }
+        else{
+          cout << RED;
+          cout << light << "\t";
+        }
+
+      }
+      else{
+
+        if( light_holder[1] == true && light_state == true){
+          cout << BOLDGREEN;
+          cout << light << "\t";
+        }
+        else if(light_holder[2] == true && light_state == false){
+          cout << BOLDYELLOW;
+          cout << light << "\t";
+        }
+        else{
+          cout << RED;
+          cout << light << "\t";
+        }
+
+
+      }
+
     }
+
     else{
       cout << " " << "\t";
     }
@@ -553,11 +519,11 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
 
 
   //print bottom vertical values =======================================
-  for(int i = section_xy+4; i<road_size; i++){
+  for(int i=section_xy+4; i<(road_size-sectionBegin); i++){
 
     cout << WHITE;
 
-    for(int j=0; j<section_xy+1; j++){
+    for(int j=sectionBegin; j<section_xy+1; j++){
       cout<< " " <<"\t";
     }
 
@@ -601,7 +567,7 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
 
     cout << WHITE;
 
-    for(int j=0; j<section_xy+1; j++){
+    for(int j=sectionBegin; j<section_xy+1; j++){
       cout<< " " <<"\t";
     }
 
@@ -614,29 +580,6 @@ void printRoadTop(int vertical_0[], int vertical_1[], int vertical_2[], int vert
 
 }
 
-
-/*
-* printRoadData - Reads the street arrays and prints the result.
-*
-* Args:
-*   int vertical_0[]: array representing the (relative) right lane
-*     of the south-bound road
-*   int vertical_1[]: array representing the (relative) left lane
-*     of the south-bound road
-*   int vertical_2[]: array representing the (relative) left lane
-*     of the north-bound road
-*   int vertical_3[]: array representing the (relative) right lane
-*     of the north-bound road
-*   int horizontal_0[]: array representing the (relative) right lane
-*     of the west-bound road
-*   int horizontal_1[]: array representing the (relative) left lane
-*     of the west-bound road
-*   int horizontal_2[]: array representing the (relative) left lane
-*     of the east-bound road
-*   int horizontal_3[]: array representing the (relative) right lane
-*     of the east-bound road.
-*   int road_size: size of the road
-*/
 void printRoadData(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[] ,int horizontal_2[] , int horizontal_3[], int road_size){
   //show road
   cout << "Vertical Lanes: \n";
