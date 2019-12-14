@@ -632,9 +632,11 @@ void clearH0H1Ends(int horizontal_0[], int horizontal_1[], int section_xy, int r
     horizontal_1_next_state[i] = horizontal_1[i];
   }
   /* Duplicating arrays  */
+  #pragma omp parallel for  
   for(int i = 0; i<=(section_xy-1); i++){
     horizontal_0[i] = horizontal_0_next_state[i+1];
   }
+  #pragma omp parallel for  
   horizontal_0[section_xy] = 0;
   for(int i = 0; i<=(section_xy+2); i++){
     horizontal_1[i] = horizontal_1_next_state[i+1];
@@ -661,10 +663,12 @@ void clearV2V3Ends(int vertical_2[], int vertical_3[], int section_xy, int road_
     vertical_3_next_state[i] = vertical_3[i];
   }
   /* Duplicating arrays  */
+  #pragma omp parallel for
   for(int i = 0; i<=(section_xy-1); i++){
     vertical_3[i] = vertical_3_next_state[i+1];
   }
   vertical_3[section_xy] = 0;
+  #pragma omp parallel for
   for(int i = 0; i<=(section_xy+2); i++){
     vertical_2[i] = vertical_2_next_state[i+1];
   }
