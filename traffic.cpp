@@ -12,6 +12,10 @@ using namespace std;
 #define BLUE    "\033[34m"      /* Blue */
 #define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
 
+/*  Road size:
+*   road_size = from user input
+*/
+int road_size;
 
 /* Cars States:
 * 0: No Car
@@ -38,6 +42,45 @@ int total_cars_2 = 0;
 // Total time for simulation logic
 clock_t total_time = 0; 
 
+// Utility function to find ceiling of r in arr[l..h] 
+int findCeil(int arr[], int r, int l, int h) 
+{ 
+  int mid; 
+  while (l < h) 
+  { 
+    mid = l + ((h - l) >> 1); // Same as mid = (l+h)/2 
+    (r > arr[mid]) ? (l = mid + 1) : (h = mid); 
+  } 
+  return (arr[l] >= r) ? l : -1; 
+} 
+
+// The main function that returns a random number 
+// from arr[] according to distribution array 
+// defined by freq[]. n is size of arrays. 
+int myRand(int arr[], int freq[], int n) 
+{ 
+  // Create and fill prefix array 
+  int prefix[n], i; 
+  prefix[0] = freq[0]; 
+  for (i = 1; i < n; ++i) 
+    prefix[i] = prefix[i - 1] + freq[i]; 
+
+  // prefix[n-1] is sum of all frequencies. 
+  // Generate a random number with 
+  // value from 1 to this sum 
+  int r = (rand() % prefix[n - 1]) + 1; 
+
+  // Find index of ceiling of r in prefix arrat 
+  int indexc = findCeil(prefix, r, 0, n - 1); 
+  return arr[indexc]; 
+} 
+
+int makeInputRightTurns(int road_size, int total_cars, int vertical_0[], int vertical_3[], int horizontal_0[], int horizontal_3[]);
+
+int makeInputLeftTurns(int road_size, int total_cars, int vertical_1[], int vertical_2[], int horizontal_1[], int horizontal_2[]);
+
+int readInput(int road_size, int total_cars, int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[]);
+
 void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, int east_light, int west_light, int north_light, int south_light);
 
 int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, bool light_holder[], bool light_state);
@@ -60,11 +103,14 @@ void clearH2H3Fronts(int horizontal_2[], int horizontal_3[], int vertical_0[], i
 
 /* Main */
 int main(int argc, char** argv){
-
+  /*
   string file_name = argv[1];
   // Total number of cars in one road. Reads the input file and gets array dimensions.
-  int road_size = getRoadSize(file_name);
+  road_size = getRoadSize(file_name);
   std::cout<< "The dimensions are: " << road_size << " \n" ;
+  */
+
+  int road_size = atoi(argv[1]);
 
   // Lights for each intersection are named in the direction of the cars moving.
   bool east_light = red;
@@ -76,16 +122,23 @@ int main(int argc, char** argv){
   int horizontal_0 [road_size], horizontal_1 [road_size], horizontal_2 [road_size], horizontal_3 [road_size];
   int vertical_0 [road_size], vertical_1 [road_size], vertical_2 [road_size], vertical_3 [road_size];
 
-  total_cars = readInput(file_name, road_size, total_cars, vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3);
+  int right_total = makeInputRightTurns(road_size, total_cars, vertical_0, vertical_3, horizontal_0, horizontal_3);
+  cout << "Total after right: " << right_total << endl;
+  int left_total =  makeInputLeftTurns(road_size, total_cars, vertical_1, vertical_2, horizontal_1, horizontal_2);
+  total_cars = right_total + left_total;  
+  cout << "Total after left: " << total_cars << endl;
+
+  //total_cars = readInput(file_name, road_size, total_cars, vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3);
   total_cars_2 = total_cars;
 
   startSimulation(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size, east_light, west_light, north_light, south_light);
+
+  //printRoadData(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size);
 
   cout<< "The project seems fine! The total_cars are: " << total_cars_2 << "\n";
 
   return 0;
 }
-
 
 /*
 * startSimulation - Initialize the simulation variables and call
@@ -138,9 +191,9 @@ void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int v
     local_time += sleep_time;
     clock_t c_start = clock();
     int name = performStateSimulation(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size, light_holder, light_state);
-    clock_t c_end = clock();
+    //clock_t c_end = clock();
     //cout << " Local timen for each state" << c_end - c_start << endl;
-    total_time += (c_end - c_start);
+    //total_time += (c_end - c_start);
     sleep(sleep_time);
   }
   cout << total_time << endl;
@@ -178,6 +231,7 @@ void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int v
 *   int: indicating the simulation is finished
 */
 int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, bool light_holder[], bool light_state){
+  clock_t c_start = clock();
   int section_xy = (road_size - 4)/2;
   int intesection_crossing_point = section_xy-1;
   if(light_holder[0] == green && light_state == true){
@@ -189,16 +243,21 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
       }
       for(int i = road_size-1; i>=1; i--){
         if( i == section_xy+3 && horizontal_2[i-1] == 3 ){
-      vertical_2[section_xy+2] = horizontal_2[i-1];
-      horizontal_2[i-1] = 0;
+        vertical_2[section_xy+2] = horizontal_2[i-1];
+        horizontal_2[i-1] = 0;
         } 
         if( i == section_xy+1 && horizontal_3[i-1] == 2 ){
           horizontal_2[i] = horizontal_2[i-1];
+        } else {
+        horizontal_2[i] = horizontal_2[i-1];
+        }
+      }
+      for(int i = road_size-1; i>=1; i--){
+        if( i == section_xy+1 && horizontal_3[i-1] == 2 ){
           horizontal_3[i] = horizontal_3[i-1];
           vertical_0[((road_size-2)-intesection_crossing_point)] = horizontal_3[i-1];
           horizontal_3[i] = 0;
         } else {
-        horizontal_2[i] = horizontal_2[i-1];
         horizontal_3[i] = horizontal_3[i-1];
         }
       }
@@ -216,6 +275,8 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
       clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
       // vertical 2, 3 --- lower part
       clearV2V3Fronts(vertical_2, vertical_3, horizontal_3, road_size, intesection_crossing_point, section_xy);
+  clock_t c_end = clock();
+  total_time += (c_end - c_start);
   } else if(light_holder[1] == green && light_state == false) {
       if(horizontal_2[road_size-1]>0){
           total_cars--;
@@ -656,4 +717,78 @@ void clearH2H3Fronts(int horizontal_2[], int horizontal_3[], int vertical_0[], i
   }
 }
 
+int makeInputRightTurns(int road_size, int total_cars, int vertical_0[], int vertical_3[], int horizontal_0[], int horizontal_3[]){
+    int size = road_size;
+    int section_xy = (size - 4)/2;
+  int arr[] = {0, 1, 2}; 
+  int freq[] = {40, 40, 20}; 
+    int result[size]; 
+  int i, n = sizeof(arr) / sizeof(arr[0]); 
+  // Use a different seed value for every run. 
+  srand(time(NULL)); 
+  // Let us generate 10 random numbers accroding to 
+  // given distribution 
+  for (i = 0; i < size; i++){ 
+        vertical_0[i] = myRand(arr, freq, n);
+        vertical_3[i] = myRand(arr, freq, n);
+        horizontal_0[i] = myRand(arr, freq, n);
+        horizontal_3[i] = myRand(arr, freq, n);        
+    }
+    for (i = section_xy; i < section_xy+4; i++ ){
+        vertical_0[i] = 0;
+        vertical_3[i] = 0;
+        horizontal_0[i] = 0;
+        horizontal_3[i] = 0;
+    }
+    for (i = 0; i < size; i++){
+      if(vertical_0[i] > 0) total_cars++; 
+    }
+    for (i = 0; i < size; i++){
+      if(vertical_3[i] > 0) total_cars++; 
+    }
+    for (i = 0; i < size; i++){
+      if(horizontal_0[i] > 0) total_cars++; 
+    }
+    for (i = 0; i < size; i++){
+      if(horizontal_3[i] > 0) total_cars++; 
+    }
+  return total_cars; 
+}
 
+int makeInputLeftTurns(int road_size, int total_cars, int vertical_1[], int vertical_2[], int horizontal_1[], int horizontal_2[]){
+    int size = road_size;
+    int section_xy = (size - 4)/2;
+  int arr[] = {0, 1, 3}; 
+  int freq[] = {40, 40, 20}; 
+    int result[size]; 
+  int i, n = sizeof(arr) / sizeof(arr[0]); 
+  // Use a different seed value for every run. 
+  srand(time(NULL)); 
+  // Let us generate 10 random numbers accroding to 
+  // given distribution 
+  for (i = 0; i < size; i++){ 
+        vertical_1[i] = myRand(arr, freq, n);
+        vertical_2[i] = myRand(arr, freq, n);
+        horizontal_1[i] = myRand(arr, freq, n);
+        horizontal_2[i] = myRand(arr, freq, n);        
+    }
+    for (i = section_xy; i < section_xy+4; i++ ){
+        vertical_1[i] = 0;
+        vertical_2[i] = 0;
+        horizontal_1[i] = 0;
+        horizontal_2[i] = 0;
+    }
+    for (i = 0; i < size; i++){
+      if(vertical_1[i] > 0) total_cars++; 
+    }
+    for (i = 0; i < size; i++){
+      if(vertical_2[i] > 0) total_cars++; 
+    }
+    for (i = 0; i < size; i++){
+      if(horizontal_1[i] > 0) total_cars++; 
+    }
+    for (i = 0; i < size; i++){
+      if(horizontal_2[i] > 0) total_cars++; 
+    }
+  return total_cars; 
+}
