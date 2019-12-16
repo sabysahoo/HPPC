@@ -73,6 +73,36 @@ int myRand(int arr[], int freq[], int n)
   return arr[indexc];
 }
 
+void debugCars(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size){
+
+  int* h0 = countNum(horizontal_0, road_size);
+  int* h1 = countNum(horizontal_1, road_size);
+  int* h2 = countNum(horizontal_2, road_size);
+  int* h3 = countNum(horizontal_3, road_size);
+
+  int* v0 = countNum(vertical_0, road_size);
+  int* v1 = countNum(vertical_1, road_size);
+  int* v2 = countNum(vertical_2, road_size);
+  int* v3 = countNum(vertical_3, road_size);
+
+  int found = 0;
+  for( int i = 1; i<5; i++){
+    found = found + h0[i] + h1[i] + h2[i] + h3[i] + v0[i] + v1[i] + v2[i] + v3[i];
+  }
+
+  printf("Horizontal_0 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", h0[0], h0[1], h0[2], h0[3], h0[4]);
+  printf("Horizontal_1 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", h1[0], h1[1], h1[2], h1[3], h1[4]);
+  printf("Horizontal_2 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", h2[0], h2[1], h2[2], h2[3], h2[4]);
+  printf("Horizontal_3 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", h3[0], h3[1], h3[2], h3[3], h3[4]);
+
+  printf("Vertical_0 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", v0[0], v0[1], v0[2], v0[3], v0[4]);
+  printf("Vertical_1 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", v1[0], v1[1], v1[2], v1[3], v1[4]);
+  printf("Vertical_2 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", v2[0], v2[1], v2[2], v2[3], v2[4]);
+  printf("Vertical_3 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", v3[0], v3[1], v3[2], v3[3], v3[4]);
+  printf("All cars found: %d \n", found);
+
+}
+
 int makeInputRightTurns(int road_size, int total_cars, int vertical_0[], int vertical_3[], int horizontal_0[], int horizontal_3[]);
 
 int makeInputLeftTurns(int road_size, int total_cars, int vertical_1[], int vertical_2[], int horizontal_1[], int horizontal_2[]);
@@ -183,7 +213,7 @@ void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int v
   int local_time = 0;
   bool light_holder[4] = {west_light, south_light, east_light, north_light};
   bool light_state = true;  // this is the clear if false
-  while(total_cars > 3 ){
+  while(total_cars > 0 ){
     if(local_time == light_time && light_state == true){
       local_time = 0;
       bool light_store_last = light_holder[3];
@@ -578,6 +608,8 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
   //printRoadData(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size);
   //printRoadTop(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size, light_holder, light_state);
   cout<< "No. of cars exited are: " << total_cars  << endl;
+  debugCars(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size);
+
   //cout<< "Light states are: " << "W:"<< light_holder[0] << "S:"<< light_holder[1] << "E:"<< light_holder[2] << "N:"<< light_holder[3] << endl;
   return 0;
 }
