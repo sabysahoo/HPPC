@@ -636,8 +636,8 @@ void clearH0H1Ends(int horizontal_0[], int horizontal_1[], int section_xy, int r
   for(int i = 0; i<=(section_xy-1); i++){
     horizontal_0[i] = horizontal_0_next_state[i+1];
   }
-  #pragma omp parallel for  
   horizontal_0[section_xy] = 0;
+  #pragma omp parallel for  
   for(int i = 0; i<=(section_xy+2); i++){
     horizontal_1[i] = horizontal_1_next_state[i+1];
   }
