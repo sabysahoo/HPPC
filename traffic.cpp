@@ -42,6 +42,38 @@ int total_cars_2 = 0;
 // Total time for simulation logic
 clock_t total_time = 0;
 
+int* countNum(int array[], int road_size){
+
+  int* arr = new int[5];
+
+  arr[0] = 0;
+  arr[1] = 0;
+  arr[2] = 0;
+  arr[3] = 0;
+  arr[4] = 0;
+
+  for( int i = 0; i<road_size; i++){
+    if( array[i] == 0){
+      arr[0]++;
+    }
+    else if( array[i] == 1){
+      arr[1]++;
+    }
+    else if( array[i] == 2){
+      arr[2]++;
+    }
+    else if(array[i] == 3){
+      arr[3]++;
+    }
+    else{
+      arr[4]++;
+    }
+  }
+
+  return arr;
+
+}
+
 // Utility function to find ceiling of r in arr[l..h]
 int findCeil(int arr[], int r, int l, int h)
 {
