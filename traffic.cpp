@@ -208,7 +208,7 @@ int main(int argc, char** argv){
 */
 void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, int east_light, int west_light, int north_light, int south_light){
   int sleep_time = 0.1;   // Time for each state completion
-  int light_time = 100000;  // Green light total time = [each state time]*[factor]
+  int light_time = sleep_time * 10;  // Green light total time = [each state time]*[factor]
   int clear_time = sleep_time * 4;      // Yellow light time = [each state time]*[factor = 4] as 4 states have to clear out
   int local_time = 0;
   bool light_holder[4] = {west_light, south_light, east_light, north_light};
