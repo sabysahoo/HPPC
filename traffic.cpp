@@ -73,6 +73,39 @@ int myRand(int arr[], int freq[], int n)
   return arr[indexc];
 }
 
+
+int* countNum(int array[], int road_size){
+
+  int* arr = new int[5];
+
+  arr[0] = 0;
+  arr[1] = 0;
+  arr[2] = 0;
+  arr[3] = 0;
+  arr[4] = 0;
+
+  for( int i = 0; i<road_size; i++){
+    if( array[i] == 0){
+      arr[0]++;
+    }
+    else if( array[i] == 1){
+      arr[1]++;
+    }
+    else if( array[i] == 2){
+      arr[2]++;
+    }
+    else if(array[i] == 3){
+      arr[3]++;
+    }
+    else{
+      arr[4]++;
+    }
+  }
+
+  return arr;
+
+}
+
 void debugCars(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size){
 
   int* h0 = countNum(horizontal_0, road_size);
@@ -207,13 +240,13 @@ int main(int argc, char** argv){
 *   int south_light: color of the south light
 */
 void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, int east_light, int west_light, int north_light, int south_light){
-  int sleep_time = 0.1;   // Time for each state completion
-  int light_time = 100000;  // Green light total time = [each state time]*[factor]
+  int sleep_time = .01;   // Time for each state completion
+  int light_time = sleep_time * 10000;  // Green light total time = [each state time]*[factor]
   int clear_time = sleep_time * 4;      // Yellow light time = [each state time]*[factor = 4] as 4 states have to clear out
   int local_time = 0;
   bool light_holder[4] = {west_light, south_light, east_light, north_light};
   bool light_state = true;  // this is the clear if false
-  while(total_cars > 0 ){
+  while(total_cars > 50 ){
     if(local_time == light_time && light_state == true){
       local_time = 0;
       bool light_store_last = light_holder[3];
@@ -227,11 +260,10 @@ void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int v
       light_state = true;
     }
     local_time += sleep_time;
-    clock_t c_start = clock();
     int name = performStateSimulation(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size, light_holder, light_state);
-    //clock_t c_end = clock();
+  //clock_t c_end = clock();
     //cout << " Local timen for each state" << c_end - c_start << endl;
-    //total_time += (c_end - c_start);
+  //  total_time += (c_end - c_start);
     sleep(sleep_time);
   }
   cout << total_time << endl;
@@ -269,7 +301,6 @@ void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int v
 *   int: indicating the simulation is finished
 */
 int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, bool light_holder[], bool light_state){
-  clock_t c_start = clock();
   int section_xy = (road_size - 4)/2;
   int intesection_crossing_point = section_xy-1;
   if(light_holder[0] == green && light_state == true){
@@ -301,20 +332,24 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
       }
       horizontal_2[0] = 0;
       horizontal_3[0] = 0;
+
+      clock_t c_start = clock();
       // vertical 2, 3 --- upper part
       clearV2V3Ends(vertical_2, vertical_3, section_xy, road_size);
       // horizontal 0,1 left part
       clearH0H1Ends(horizontal_0, horizontal_1, section_xy, road_size);
       // vertical 0, 1 --- lower part
       clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
+      clock_t c_end = clock();
+
+      total_time += (c_end-c_start);
       // vertical 0, 1 --- upper part
       clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
        // horizontal 0, 1 --- right part
       clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
       // vertical 2, 3 --- lower part
       clearV2V3Fronts(vertical_2, vertical_3, horizontal_3, road_size, intesection_crossing_point, section_xy);
-  clock_t c_end = clock();
-  total_time += (c_end - c_start);
+
   } else if(light_holder[1] == green && light_state == false) {
       if(horizontal_2[road_size-1]>0){
           total_cars--;
@@ -349,12 +384,17 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
           horizontal_3[i-1] = 0;
         }
       }
+      clock_t c_start = clock();
       // vertical 2, 3 --- upper part
       clearV2V3Ends(vertical_2, vertical_3, section_xy, road_size);
       // horizontal 0,1 left part
       clearH0H1Ends(horizontal_0, horizontal_1, section_xy, road_size);
       // vertical 0, 1
       clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
+      clock_t c_end = clock();
+
+      total_time += (c_end-c_start);
+
       // vertical 0, 1 --- upper part
       clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
       // horizontal 0, 1 --- right part
@@ -385,12 +425,18 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
       }
       vertical_2[road_size-1] = 0;
       vertical_3[road_size-1] = 0;
+
+      clock_t c_start = clock();
+
       // horizontal 2, 3 left part
       clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
       // horizontal 0, 1 --- left part
       clearH0H1Ends(horizontal_0, horizontal_1, section_xy, road_size);
       // vertical 0, 1 --- lower part
       clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
+      clock_t c_end = clock();
+
+      total_time += (c_end-c_start);
       // vertical 0, 1 --- upper part
       clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
       // horizontal 2, 3 --- right part
@@ -431,12 +477,18 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
           vertical_3[i+1] = 0;
         }
       }
+
+      clock_t c_start = clock();
+
       // horizontal 0, 1 --- left part
       clearH0H1Ends(horizontal_0, horizontal_1, section_xy, road_size);
       // horizontal 2, 3 left part
       clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
       // vertical 0, 1
       clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
+      clock_t c_end = clock();
+
+      total_time += (c_end-c_start);
       // vertical 0, 1 --- upper part
       clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
       // horizontal 2, 3 --- right part
@@ -467,12 +519,18 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
       }
       horizontal_0[road_size-1] = 0;
       horizontal_1[road_size-1] = 0;
+
+      clock_t c_start = clock();
+
       // vertical 2, 3 --- upper part
       clearV2V3Ends(vertical_2, vertical_3, section_xy, road_size);
       // horizontal 2, 3 left part
       clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
       // vertical 0, 1 --- lower part
       clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
+      clock_t c_end = clock();
+
+      total_time += (c_end-c_start);
       // vertical 0, 1 --- upper part
       clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
       // horizontal 2, 3 --- right part
@@ -513,12 +571,18 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
           horizontal_1[i+1] = 0;
         }
       }
+
+      clock_t c_start = clock();
+
       // horizontal 2, 3 left part
       clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
       // vertical 2, 3 --- upper part
       clearV2V3Ends(vertical_2, vertical_3, section_xy, road_size);
       // vertical 0, 1
       clearV0V1Ends(vertical_0, vertical_1, road_size, section_xy);
+      clock_t c_end = clock();
+
+      total_time += (c_end-c_start);
       // vertical 0, 1 --- upper part
       clearV0V1Fronts(vertical_0, vertical_1, horizontal_0, intesection_crossing_point);
       // vertical 2, 3 --- lower part
@@ -549,10 +613,15 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
       }
       vertical_0[0] = 0;
       vertical_1[0] = 0;
+      clock_t c_start = clock();
+
       clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
       // vertical 2, 3 --- upper part
       clearV2V3Ends(vertical_2, vertical_3, section_xy, road_size);
       clearH0H1Ends(horizontal_0, horizontal_1, section_xy, road_size);
+      clock_t c_end = clock();
+
+      total_time += (c_end-c_start);
       // horizontal 0, 1 --- right part
       clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
       // vertical 2, 3 --- lower part
@@ -593,11 +662,17 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
           vertical_1[i-1] = 0;
         }
       }
+
+      clock_t c_start = clock();
+
       // vertical 2, 3 --- upper part
       clearV2V3Ends(vertical_2, vertical_3, section_xy, road_size);
       clearH2H3Ends(horizontal_2, horizontal_3, road_size, section_xy);
       // horizontal 0,1 left part
       clearH0H1Ends(horizontal_0, horizontal_1, section_xy, road_size);
+      clock_t c_end = clock();
+
+      total_time += (c_end-c_start);
       // horizontal 0, 1 --- right part
       clearH0H1Fronts(horizontal_0, horizontal_1, vertical_3, road_size, intesection_crossing_point, section_xy);
       // vertical 2, 3 --- lower part
@@ -609,8 +684,7 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
   //printRoadTop(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size, light_holder, light_state);
   cout<< "No. of cars exited are: " << total_cars  << endl;
   debugCars(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size);
-
-  //cout<< "Light states are: " << "W:"<< light_holder[0] << "S:"<< light_holder[1] << "E:"<< light_holder[2] << "N:"<< light_holder[3] << endl;
+  cout<< "Light states are: " << "W:"<< light_holder[0] << "S:"<< light_holder[1] << "E:"<< light_holder[2] << "N:"<< light_holder[3] << endl;
   return 0;
 }
 
