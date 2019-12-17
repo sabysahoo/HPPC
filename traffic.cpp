@@ -7,10 +7,7 @@
 #include <omp.h>
 using namespace std;
 
-#define BOLDRED     "\033[1m\033[31m" /* Bold Red */
-#define RESET     "\033[0m"
-#define BLUE    "\033[34m" /* Blue */
-#define BOLDGREEN   "\033[1m\033[32m" /* Bold Green */
+/*********************** Global Variables **************************/
 
 /*  Road size:
 *   road_size = from user input
@@ -42,6 +39,10 @@ int total_cars_2 = 0;
 // Total time for simulation logic
 clock_t total_time = 0;
 
+/*********************** Global Variables **************************/
+
+
+/*********************** Funtion Headers **************************/
 int readInput(int road_size, int total_cars, int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[]);
 
 void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, int east_light, int west_light, int north_light, int south_light);
@@ -66,8 +67,9 @@ void clearV2V3Fronts(int vertical_2[], int vertical_3[], int horizontal_3[], int
 
 void clearH2H3Fronts(int horizontal_2[], int horizontal_3[], int vertical_0[], int intesection_crossing_point );
 
+/*********************** Funtion Headers **************************/
 
-/* Main */
+/* Main Function */
 int main(int argc, char** argv){
   /*
   string file_name = argv[1];
@@ -541,7 +543,7 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
   return 0;
 }
 
-
+//clear out  vertical 0 and vertical 1 ends 
 void clearV0V1Ends(int vertical_0[], int vertical_1[], int road_size, int section_xy){
   if(vertical_0[road_size-1]>0){
       total_cars--;
@@ -572,6 +574,7 @@ void clearV0V1Ends(int vertical_0[], int vertical_1[], int road_size, int sectio
   vertical_1[section_xy+1] = 0;
 }
 
+//clear out  horizontal 0 and horizontal 1 ends 
 void clearH0H1Ends(int horizontal_0[], int horizontal_1[], int section_xy, int road_size){
   if(horizontal_0[0]>0){
       total_cars--;
@@ -604,6 +607,7 @@ void clearH0H1Ends(int horizontal_0[], int horizontal_1[], int section_xy, int r
   horizontal_1[section_xy+2] = 0;
 }
 
+//clear out  vertical 2 and vertical 3 ends 
 void clearV2V3Ends(int vertical_2[], int vertical_3[], int section_xy, int road_size){
   if(vertical_2[0]>0){
       total_cars--;
@@ -635,6 +639,7 @@ void clearV2V3Ends(int vertical_2[], int vertical_3[], int section_xy, int road_
   vertical_2[section_xy+2] = 0;
 }
 
+//clear out  horizontal 2 and horizontal 3 ends 
 void clearH2H3Ends(int horizontal_2[], int horizontal_3[], int road_size, int section_xy){
   if(horizontal_2[road_size-1]>0){
       total_cars--;
@@ -664,7 +669,7 @@ void clearH2H3Ends(int horizontal_2[], int horizontal_3[], int road_size, int se
   horizontal_2[section_xy+1] = 0;
 }
 
-
+//clear out  vertical 0 and vertical 1 fronts 
 void clearV0V1Fronts(int vertical_0[], int vertical_1[], int horizontal_0[], int intesection_crossing_point){
   bool turn_available = (horizontal_0[intesection_crossing_point+1] == 0 && horizontal_0[intesection_crossing_point+2] == 0 && horizontal_0[intesection_crossing_point+3] == 0);
   //cout << "Is turn_available?" << turn_available << endl;
@@ -684,6 +689,7 @@ void clearV0V1Fronts(int vertical_0[], int vertical_1[], int horizontal_0[], int
   }
 }
 
+//clear out  horizontal 0 and horizontal 1 fronts 
 void clearH0H1Fronts(int horizontal_0[], int horizontal_1[], int vertical_3[], int road_size, int intesection_crossing_point, int section_xy){
   bool turn_available = (vertical_3[section_xy] == 0 && vertical_3[section_xy+1] == 0 && vertical_3[section_xy+2] == 0);
   if(horizontal_0[((road_size-1)-intesection_crossing_point)] == 2 && turn_available){
@@ -705,6 +711,7 @@ void clearH0H1Fronts(int horizontal_0[], int horizontal_1[], int vertical_3[], i
    // horizontal_1[section_xy] = 0;
 }
 
+//clear out  vertical 2 and vertical 3 fronts 
 void clearV2V3Fronts(int vertical_2[], int vertical_3[], int horizontal_3[], int road_size, int intesection_crossing_point, int section_xy){
   bool turn_available = (horizontal_3[section_xy+1] == 0 && horizontal_3[section_xy+2] == 0 && horizontal_3[section_xy+3] == 0);
   if(vertical_3[((road_size-1)-intesection_crossing_point)] == 2 && turn_available){
@@ -723,6 +730,7 @@ void clearV2V3Fronts(int vertical_2[], int vertical_3[], int horizontal_3[], int
   }
 }
 
+//clear out  horizontal 2 and horizontal 3 fronts 
 void clearH2H3Fronts(int horizontal_2[], int horizontal_3[], int vertical_0[], int intesection_crossing_point ){
   bool turn_available = (horizontal_3[intesection_crossing_point+2] == 0 && horizontal_3[intesection_crossing_point+3] == 0 && horizontal_3[intesection_crossing_point+4] == 0);
   if(horizontal_3[intesection_crossing_point] == 2 && turn_available){
