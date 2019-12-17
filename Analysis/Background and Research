@@ -1,0 +1,68 @@
+Background and Research
+  a) Four Way Intersection
+  b) Cellular Automata
+  c) C++ | Debian | Stampede
+  d) OpenMP
+  e) MPI
+  f) Pthreads
+
+Sequential Technique Section:-
+A) Data Structure
+  a) Chose contigous arrays as they are easily parallelizable. Skipped OOP's becuase of the offsets making it harder to parallelized.
+  b) Horizontal and Vertical Arrays of size equal to the length of the road.
+  c) Cars are store in these veritical arrays. (0, 1, 2, 3 and explain their following types)
+  d) Intersections( Either of the Horizontal or the Vertical arrays contain the intersection, 4x4, for the respective lights )
+  e) Traffic Lights ( Array Holder of four lights E, W, N, and S  directions stores as boolean true(green)/false(red))
+
+B) Inputs & Outputs
+  a) Csv file inputs, example in the repository. 
+  b) Randomized Input, 40% of 0's, 40% of 1's, 20% of 2's{in middle roads) and 20% of 3's{in outer roads) 
+     and determine the size of the arrays through arguments supported via the terminal.
+  c) Console output using UTF-8 special characters.
+  d) An 8x8 traffic intersection with lights and cars in the backlog.
+  e) State simulation statistics.
+  d) Entire program simulaltion statistics.
+  f) Total number of cars exited.
+
+C) Cellular Automaton
+  a) We move Cars states to its next state in the automata by shifting their respective arrays.
+  b) All cars check to see if they can proceed to the next state i.e., if the next arr[index+1] is 0.
+     {VERY IMP AS CELLAUTO IS ALL ABOUT CHECKING}
+
+D) Seperate State simulations for a run:- {For a, b, c, d and e}
+  {So basically have couple of screenshots followed by an explanation for each of the below states}
+  a) Light Logic 
+    i. Sleep time { allows us to output states on console following the state automata}
+    ii. Light time { Sleep * Factor, where Factor is no. of states simulation we want the Green Light to last for }
+    iii. Clear time { Sleep * 4, here Factor is 4 because we need to clear intersection i.e., How long Yellow Light to last for }
+  b) Green Light
+    i. Explain how 1's move following state automata. {Like what indices we check for}
+    ii. Explain how 2's move following state automata. {Like what indices we check for}
+    iii. Explain how 3's move following state automata. {Like what indices we check for}
+    iv. State how that other lights follow clear ends and fronts logic.
+    v. State how car exits and counter decrements.
+  c) Yellow Light
+  {From the Ligth till the end of the road}
+    i. Explain how 1's clear out following state automata. {Like what indices we check for}
+    ii. Explain how 2's clear out following state automata. {Like what indices we check for}
+    iii. Explain how 3's clear out following state automata. {Like what indices we check for}
+    iv. State how car exits and counter decrements.
+  {From the start of the road till the light}
+    iv. Main light road performs clear fronts.
+    v. State that other lights follow clear ends and fronts logic.
+  d) Clear Ends { State how car exits and counter decrements for red light roads as we only call these on red light roads. }
+  e) Clear Fronts { Stacking up of Cars because of 1's in between & we only call these on red light roads. }
+
+E) Termination 
+  a) All light rotate in their holder.
+  b) All the cars leave thier respective arrays and lanes.
+  c) Finally, total_car == 0, pragram terminates.
+
+Paralllel Technique Section:-
+  A) We did our project in serial while keeping the parallel part in our mind.
+  B) Our main program involves shifting of arrays, so we deduced a sub problem of shfting array.
+  C) Parallelized shift array. Explain how we did it serial and openmp. (Batch job of sample shift array results)
+  D) Parallel main program done using openmp. For loops that shift array.
+
+Summary & Results
+  A) 
