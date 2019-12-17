@@ -3,14 +3,14 @@
 #include "header.h"
 #include <unistd.h>
 #include <ctime>
-#include <iomanip>      // std::setprecision
-# include <omp.h>
+#include <iomanip> // std::setprecision
+#include <omp.h>
 using namespace std;
 
-#define BOLDRED     "\033[1m\033[31m"      /* Bold Red */
+#define BOLDRED     "\033[1m\033[31m" /* Bold Red */
 #define RESET     "\033[0m"
-#define BLUE    "\033[34m"      /* Blue */
-#define BOLDGREEN   "\033[1m\033[32m"      /* Bold Green */
+#define BLUE    "\033[34m" /* Blue */
+#define BOLDGREEN   "\033[1m\033[32m" /* Bold Green */
 
 /*  Road size:
 *   road_size = from user input
@@ -42,108 +42,12 @@ int total_cars_2 = 0;
 // Total time for simulation logic
 clock_t total_time = 0;
 
-int* countNum(int array[], int road_size){
-
-  int* arr = new int[5];
-
-  arr[0] = 0;
-  arr[1] = 0;
-  arr[2] = 0;
-  arr[3] = 0;
-  arr[4] = 0;
-
-  for( int i = 0; i<road_size; i++){
-    if( array[i] == 0){
-      arr[0]++;
-    }
-    else if( array[i] == 1){
-      arr[1]++;
-    }
-    else if( array[i] == 2){
-      arr[2]++;
-    }
-    else if(array[i] == 3){
-      arr[3]++;
-    }
-    else{
-      arr[4]++;
-    }
-  }
-
-  return arr;
-
-}
-
-// Utility function to find ceiling of r in arr[l..h]
-int findCeil(int arr[], int r, int l, int h)
-{
-  int mid;
-  while (l < h)
-  {
-    mid = l + ((h - l) >> 1); // Same as mid = (l+h)/2
-    (r > arr[mid]) ? (l = mid + 1) : (h = mid);
-  }
-  return (arr[l] >= r) ? l : -1;
-}
-
-// The main function that returns a random number
-// from arr[] according to distribution array
-// defined by freq[]. n is size of arrays.
-int myRand(int arr[], int freq[], int n)
-{
-  // Create and fill prefix array
-  int prefix[n], i;
-  prefix[0] = freq[0];
-  for (i = 1; i < n; ++i)
-    prefix[i] = prefix[i - 1] + freq[i];
-  // prefix[n-1] is sum of all frequencies.
-  // Generate a random number with
-  // value from 1 to this sum
-  int r = (rand() % prefix[n - 1]) + 1;
-  // Find index of ceiling of r in prefix arrat
-  int indexc = findCeil(prefix, r, 0, n - 1);
-  return arr[indexc];
-}
-
-void debugCars(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size){
-
-  int* h0 = countNum(horizontal_0, road_size);
-  int* h1 = countNum(horizontal_1, road_size);
-  int* h2 = countNum(horizontal_2, road_size);
-  int* h3 = countNum(horizontal_3, road_size);
-
-  int* v0 = countNum(vertical_0, road_size);
-  int* v1 = countNum(vertical_1, road_size);
-  int* v2 = countNum(vertical_2, road_size);
-  int* v3 = countNum(vertical_3, road_size);
-
-  int found = 0;
-  for( int i = 1; i<5; i++){
-    found = found + h0[i] + h1[i] + h2[i] + h3[i] + v0[i] + v1[i] + v2[i] + v3[i];
-  }
-
-  printf("Horizontal_0 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", h0[0], h0[1], h0[2], h0[3], h0[4]);
-  printf("Horizontal_1 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", h1[0], h1[1], h1[2], h1[3], h1[4]);
-  printf("Horizontal_2 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", h2[0], h2[1], h2[2], h2[3], h2[4]);
-  printf("Horizontal_3 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", h3[0], h3[1], h3[2], h3[3], h3[4]);
-
-  printf("Vertical_0 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", v0[0], v0[1], v0[2], v0[3], v0[4]);
-  printf("Vertical_1 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", v1[0], v1[1], v1[2], v1[3], v1[4]);
-  printf("Vertical_2 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", v2[0], v2[1], v2[2], v2[3], v2[4]);
-  printf("Vertical_3 stats: 0: %d, 1: %d, 2: %d, 3: %d, Other: %d \n", v3[0], v3[1], v3[2], v3[3], v3[4]);
-  printf("All cars found: %d \n", found);
-
-}
-
-int makeInputRightTurns(int road_size, int total_cars, int vertical_0[], int vertical_3[], int horizontal_0[], int horizontal_3[]);
-
-int makeInputLeftTurns(int road_size, int total_cars, int vertical_1[], int vertical_2[], int horizontal_1[], int horizontal_2[]);
-
 int readInput(int road_size, int total_cars, int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[]);
 
 void startSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, int east_light, int west_light, int north_light, int south_light);
 
 int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[], int vertical_3[], int horizontal_0[], int horizontal_1[], int horizontal_2[], int horizontal_3[], int road_size, bool light_holder[], bool light_state);
+
 
 void clearV0V1Ends(int vertical_0[], int vertical_1[], int road_size, int section_xy);
 
@@ -151,15 +55,17 @@ void clearH0H1Ends(int horizontal_0[], int horizontal_1[], int section_xy, int r
 
 void clearV2V3Ends(int vertical_2[], int vertical_3[], int section_xy, int road_size);
 
+void clearH2H3Ends(int horizontal_2[], int horizontal_3[], int road_size, int section_xy);
+
+
 void clearV0V1Fronts(int vertical_0[], int vertical_1[], int horizontal_0[], int intesection_crossing_point);
 
 void clearH0H1Fronts(int horizontal_0[], int horizontal_1[], int vertical_3[], int road_size, int intesection_crossing_point, int section_xy);
 
 void clearV2V3Fronts(int vertical_2[], int vertical_3[], int horizontal_3[], int road_size, int intesection_crossing_point, int section_xy);
 
-void clearH2H3Ends(int horizontal_2[], int horizontal_3[], int road_size, int section_xy);
-
 void clearH2H3Fronts(int horizontal_2[], int horizontal_3[], int vertical_0[], int intesection_crossing_point );
+
 
 /* Main */
 int main(int argc, char** argv){
@@ -189,17 +95,6 @@ int main(int argc, char** argv){
 
   //total_cars = readInput(file_name, road_size, total_cars, vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3);
   total_cars_2 = total_cars;
-
-  /* debuggin openmp next state arr init
-  int section_xy = (road_size - 4)/2;
-  int horizontal_3_next_state[road_size-((road_size-1)-section_xy)];
-  int horizontal_2_next_state[road_size-(section_xy+1)];
-  cout<< "The horizontal 3: " << road_size-((road_size-1)-section_xy) << "\n";
-  cout<< "The horizontal 2: " << road_size-(section_xy+1) << "\n";
-  cout<< "The horizontal 3 end index: " << ((road_size-1)-section_xy) << "\n";
-  cout<< "The horizontal 2 end index: " << section_xy+1 << "\n";
-  cout<< "The horizontal 3 , 2 start index: " << road_size-1 << "\n";
-  */
 
   startSimulation(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size, east_light, west_light, north_light, south_light);
 
@@ -638,15 +533,15 @@ int performStateSimulation(int vertical_0[], int vertical_1[], int vertical_2[],
       clearH2H3Fronts(horizontal_2, horizontal_3, vertical_0, intesection_crossing_point);
   }
   //printRoadData(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size);
-  //printRoadTop(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size, light_holder, light_state);
-  cout<< "No. of cars exited are: " << total_cars  << endl;
-  debugCars(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size);
+  printRoadTop(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size, light_holder, light_state);
+  cout<< "No. of cars exited are: " << total_cars_2 - total_cars  << endl;
+  //debugCars(vertical_0, vertical_1, vertical_2, vertical_3, horizontal_0, horizontal_1, horizontal_2, horizontal_3, road_size);
 
   //cout<< "Light states are: " << "W:"<< light_holder[0] << "S:"<< light_holder[1] << "E:"<< light_holder[2] << "N:"<< light_holder[3] << endl;
   return 0;
 }
 
-// this end needs to be tested and fixed
+
 void clearV0V1Ends(int vertical_0[], int vertical_1[], int road_size, int section_xy){
   if(vertical_0[road_size-1]>0){
       total_cars--;
@@ -740,6 +635,36 @@ void clearV2V3Ends(int vertical_2[], int vertical_3[], int section_xy, int road_
   vertical_2[section_xy+2] = 0;
 }
 
+void clearH2H3Ends(int horizontal_2[], int horizontal_3[], int road_size, int section_xy){
+  if(horizontal_2[road_size-1]>0){
+      total_cars--;
+  }
+  if(horizontal_3[road_size-1]>0){
+      total_cars--;
+  }
+  /* Duplicating arrays  */
+  int horizontal_3_next_state[road_size-1];
+  int horizontal_2_next_state[road_size-1];
+  #pragma omp parallel for
+  for(int i = road_size-1; i>=0; i--){
+    horizontal_3_next_state[i] = horizontal_3[i];
+  }
+  #pragma omp parallel for
+  for(int i = road_size-1; i>=0; i--){
+    horizontal_2_next_state[i] = horizontal_2[i];
+  }
+  #pragma omp parallel for
+  for(int i = road_size-1; i>=((road_size-1)-section_xy); i--){
+    horizontal_3[i] = horizontal_3_next_state[i-1];
+  }
+  #pragma omp parallel for
+  for(int i = road_size-1; i>=section_xy+1; i--){
+    horizontal_2[i] = horizontal_2_next_state[i-1];
+  }
+  horizontal_2[section_xy+1] = 0;
+}
+
+
 void clearV0V1Fronts(int vertical_0[], int vertical_1[], int horizontal_0[], int intesection_crossing_point){
   bool turn_available = (horizontal_0[intesection_crossing_point+1] == 0 && horizontal_0[intesection_crossing_point+2] == 0 && horizontal_0[intesection_crossing_point+3] == 0);
   //cout << "Is turn_available?" << turn_available << endl;
@@ -798,47 +723,6 @@ void clearV2V3Fronts(int vertical_2[], int vertical_3[], int horizontal_3[], int
   }
 }
 
-void clearH2H3Ends(int horizontal_2[], int horizontal_3[], int road_size, int section_xy){
-  if(horizontal_2[road_size-1]>0){
-      total_cars--;
-  }
-  if(horizontal_3[road_size-1]>0){
-      total_cars--;
-  }
-  /* Duplicating arrays  */
-  int horizontal_3_next_state[road_size-1];
-  int horizontal_2_next_state[road_size-1];
-  #pragma omp parallel for
-  for(int i = road_size-1; i>=0; i--){
-    horizontal_3_next_state[i] = horizontal_3[i];
-  }
-  #pragma omp parallel for
-  for(int i = road_size-1; i>=0; i--){
-    horizontal_2_next_state[i] = horizontal_2[i];
-  }
-  /* Duplicating arrays  */
-
-  /* test printing
-  for(int i = road_size-1; i>=0; i--){
-    cout << horizontal_3_next_state[i] << "  ";
-  }
-  cout << endl;
-  for(int i = road_size-1; i>=0; i--){
-    cout << horizontal_3[i] << "  ";
-  }
-  cout << endl;
-  */
-  #pragma omp parallel for
-  for(int i = road_size-1; i>=((road_size-1)-section_xy); i--){
-    horizontal_3[i] = horizontal_3_next_state[i-1];
-  }
-  #pragma omp parallel for
-  for(int i = road_size-1; i>=section_xy+1; i--){
-    horizontal_2[i] = horizontal_2_next_state[i-1];
-  }
-  horizontal_2[section_xy+1] = 0;
-}
-
 void clearH2H3Fronts(int horizontal_2[], int horizontal_3[], int vertical_0[], int intesection_crossing_point ){
   bool turn_available = (horizontal_3[intesection_crossing_point+2] == 0 && horizontal_3[intesection_crossing_point+3] == 0 && horizontal_3[intesection_crossing_point+4] == 0);
   if(horizontal_3[intesection_crossing_point] == 2 && turn_available){
@@ -855,80 +739,4 @@ void clearH2H3Fronts(int horizontal_2[], int horizontal_3[], int vertical_0[], i
       horizontal_3[i-1] = 0;
     }
   }
-}
-
-int makeInputRightTurns(int road_size, int total_cars, int vertical_0[], int vertical_3[], int horizontal_0[], int horizontal_3[]){
-  int size = road_size;
-  int section_xy = (size - 4)/2;
-  int arr[] = {0, 1, 2};
-  int freq[] = {40, 40, 20};
-  int result[size];
-  int i, n = sizeof(arr) / sizeof(arr[0]);
-  // Use a different seed value for every run.
-  srand(time(NULL));
-  // Let us generate 10 random numbers accroding to
-  // given distribution
-  for (i = 0; i < size; i++){
-        vertical_0[i] = myRand(arr, freq, n);
-        vertical_3[i] = myRand(arr, freq, n);
-        horizontal_0[i] = myRand(arr, freq, n);
-        horizontal_3[i] = myRand(arr, freq, n);
-    }
-    for (i = section_xy; i < section_xy+4; i++ ){
-        vertical_0[i] = 0;
-        vertical_3[i] = 0;
-        horizontal_0[i] = 0;
-        horizontal_3[i] = 0;
-    }
-    for (i = 0; i < size; i++){
-      if(vertical_0[i] > 0) total_cars++;
-    }
-    for (i = 0; i < size; i++){
-      if(vertical_3[i] > 0) total_cars++;
-    }
-    for (i = 0; i < size; i++){
-      if(horizontal_0[i] > 0) total_cars++;
-    }
-    for (i = 0; i < size; i++){
-      if(horizontal_3[i] > 0) total_cars++;
-    }
-  return total_cars;
-}
-
-int makeInputLeftTurns(int road_size, int total_cars, int vertical_1[], int vertical_2[], int horizontal_1[], int horizontal_2[]){
-  int size = road_size;
-  int section_xy = (size - 4)/2;
-  int arr[] = {0, 1, 3};
-  int freq[] = {40, 40, 20};
-    int result[size];
-  int i, n = sizeof(arr) / sizeof(arr[0]);
-  // Use a different seed value for every run.
-  srand(time(NULL));
-  // Let us generate 10 random numbers accroding to
-  // given distribution
-  for (i = 0; i < size; i++){
-        vertical_1[i] = myRand(arr, freq, n);
-        vertical_2[i] = myRand(arr, freq, n);
-        horizontal_1[i] = myRand(arr, freq, n);
-        horizontal_2[i] = myRand(arr, freq, n);
-    }
-    for (i = section_xy; i < section_xy+4; i++ ){
-        vertical_1[i] = 0;
-        vertical_2[i] = 0;
-        horizontal_1[i] = 0;
-        horizontal_2[i] = 0;
-    }
-    for (i = 0; i < size; i++){
-      if(vertical_1[i] > 0) total_cars++;
-    }
-    for (i = 0; i < size; i++){
-      if(vertical_2[i] > 0) total_cars++;
-    }
-    for (i = 0; i < size; i++){
-      if(horizontal_1[i] > 0) total_cars++;
-    }
-    for (i = 0; i < size; i++){
-      if(horizontal_2[i] > 0) total_cars++;
-    }
-  return total_cars;
 }
