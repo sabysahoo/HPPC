@@ -72,7 +72,7 @@ Where this research project attempts to differentiate itself is by simplifying s
 
 \section{Serialization Technique}
 
-\includegraphics[width=0.45\textwidth]{traffic}
+\includegraphics[width=0.45\textwidth]{images/traffic}
 \begin{center}
 	\textbf{Fig. 1} Overview of simulation  \\
 \end{center}
@@ -93,7 +93,7 @@ Another important aspect to consider when designing the simulation was how to ha
 
 \hspace*{.2cm} Two different approaches were used as input to populate our roads for simulation. The first was input by csv, where the csv was filled with numbers representing cars and could be read in to populate road data. 
 
-\includegraphics[width=0.45\textwidth]{input}
+\includegraphics[width=0.45\textwidth]{images/input}
 \begin{center}
 	\textbf{Fig. 2} Example input file  \\
 \end{center}
@@ -102,7 +102,7 @@ This input was useful when testing on smaller inputs and at the beginning of log
 
 \hspace*{.2cm} To confirm correctness of development, an important output function was also created. The main version of output, which cleanly represents a traffic simulation, was done using UTF-8 characters to represent lights and prints to the console showing an overhead view of a current traffic state. \\
 
-\includegraphics[width=0.45\textwidth]{output}
+\includegraphics[width=0.45\textwidth]{images/output}
 \begin{center}
 	\textbf{Fig. 3} Example simulation output  \\
 \end{center}
@@ -120,21 +120,21 @@ Clear time $= sleep time \cdot 4$ \\
 
 where $factor$ is scaled to the size of the simulation. Clear time is always set to 4 because the intersection size is constant and any car would need at most 4 states to move out of the intersection point. \\
 
-\includegraphics[width=0.45\textwidth]{green}
+\includegraphics[width=0.45\textwidth]{images/green}
 \begin{center}
 	\textbf{Fig. 4} State during green light  \\
 \end{center}
 
 The above figure (Fig. 4) represents the simulation during a green light, where cars moving to the east are allowed to move forward. Cars in other lanes must wait unless they are turning red, which you see waiting behind each red light. \\
 
-\includegraphics[width=0.45\textwidth]{yellow}
+\includegraphics[width=0.45\textwidth]{images/yellow}
 \begin{center}
 	\textbf{Fig. 5} State during yellow light  \\
 \end{center}
 
 The next figure (Fig. 5) represents the simulation during a state of intersection clearing, or the yellow light state. During this time period, any cars within the intersection are moved forward to clear the road for the next light, which will be shown in the following image. \\
 
-\includegraphics[width=0.45\textwidth]{red}
+\includegraphics[width=0.45\textwidth]{images/red}
 \begin{center}
 	\textbf{Fig. 6} State during light change  \\
 \end{center}
@@ -152,7 +152,7 @@ Once a yellow light is finished, the next light is set to green and those cars a
 \section{Parallelization Technique}
 During the serial design of the traffic simulation, we kept track of areas that would be best to add parallelization too. One of the beneficial aspects of OpenMP is the ability to develop a sequential solution to a problem and work inside out of the design to make it parallel, which is the exact approach we took. There is one major computation step that our entire traffic simulation depends on: array shifting. 
 
-\includegraphics[width=0.45\textwidth]{arrayShift}
+\includegraphics[width=0.45\textwidth]{images/arrayShift}
 \begin{center}
 	\textbf{Fig. 7} Example of shifting an array. \\
 \end{center}
@@ -161,7 +161,7 @@ The shifting of arrays to move cars state to state is the bulk of the simulation
 
 \hspace*{.2cm} Before being able to create and test the shifting of arrays in parallel, we had to fix one major issue that occurs during the parallelization of this type of problem, which was a loop carried dependency. The shifting of arrays depends on the ability of one state to look ahead or behind one iteration to move to the next spot.In other words, the current loop iteration looks ahead or behind one iteration to make the update. In a parallel design of array shifting, the process of shifting each position in the array would be divided among $p$ processes, which results in the following problem:
 
-\includegraphics[width=0.45\textwidth]{dependency}
+\includegraphics[width=0.45\textwidth]{images/dependency}
 \begin{center}
 	\textbf{Fig. 8} Loop carried dependency \\
 \end{center}
@@ -172,24 +172,23 @@ Suppose there is an array of size 9 split up among 3 processes as seen in Fig. 7
 
 \hspace*{.2cm} After solving this issue we ran subproblems of our simulation by testing the shifting of an array of size $20,000,000$ using a varying number of threads in OpenMP vs. Shifting sequentially. The timing results of these tests are shown in Fig. 8. \\
 
-\includegraphics[width=0.45\textwidth]{subtest}
+\includegraphics[width=0.45\textwidth]{images/subtest}
 \begin{center}
 	\textbf{Fig. 9} Parallel vs Sequential array shift \\
 \end{center}
 
 The number of threads performing the shift we varied from 1 to 64. The results show that a performance benefit started to occur immediately with the addition of a second thread. As the number of threads increased the performance also steadily grew compared to the results of the sequential shift. With these results we were able to confirm the parallelization technique we would be using and begin integrating into our actual simulation. \\
-
 \hspace*{.2cm} Due to the logic heavy nature of the sequential solution, we had to decide on the most beneficial areas to parallel while keeping the integrity of the simulation. During any green light state in the simulation, the most work being done is happening on the outside, with cars driving away from the intersection or up to the intersection, while the cars in the green light lane are moving forward. The updating of all other cars requires the most work throughout each simulation state. This made us decide to parallelize all movement of cars happening outside of those moving because of the green light. By doing this, we make it so movement of cars in each lane is occurring in parallel, which is true for real traffic flow. So as cars move through the green light lanes, cars moving away and out of each road are being updated in parallel. To parallelize this aspect of the solution we parallelized the for loops responsible for updating each of the necessary areas of the road. OpenMP makes this process very simple to do, and because our project was extremely loop heavy, it makes it all the more viable of a tool. \\
 
-\hspace*{.2cm} After integrating our parallel solution into our sequential project, we tested our simulation with a varying number of threads and problem sizes using stampede, similar to our subproblem tests. We used input sizes ranging from $20$ to $200,000$ and varied the number of threads from 1 to 64. The results we got back are shown in Fig. 9. \\
+\hspace*{.2cm} After integrating our parallel solution into our sequential project, we tested our simulation with a varying number of threads and problem sizes using stampede, similar to our subproblem tests. We used input sizes ranging from $20$ to $200,000$ and varied the number of threads from 1 to 64. The results we got back are shown in Fig. 9. \\ \\
 
-\includegraphics[width=0.45\textwidth]{results}
+\includegraphics[width=0.45\textwidth]{images/results}
 \begin{center}
 	\textbf{Fig. 10} Parallel Simulation vs Sequential \\
 \end{center}
 
 \section{Summary of Results}
-\lipsum[4]
+\includegraphics[width=0.45\textwidth]{images/timeVSthreads}
 
 \section{Conclusions, Lessons Learned, and Future Work}
 \lipsum[5]
