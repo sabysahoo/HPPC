@@ -178,20 +178,42 @@ Suppose there is an array of size 9 split up among 3 processes as seen in Fig. 7
 \end{center}
 
 The number of threads performing the shift we varied from 1 to 64. The results show that a performance benefit started to occur immediately with the addition of a second thread. As the number of threads increased the performance also steadily grew compared to the results of the sequential shift. With these results we were able to confirm the parallelization technique we would be using and begin integrating into our actual simulation. \\
-\hspace*{.2cm} Due to the logic heavy nature of the sequential solution, we had to decide on the most beneficial areas to parallel while keeping the integrity of the simulation. During any green light state in the simulation, the most work being done is happening on the outside, with cars driving away from the intersection or up to the intersection, while the cars in the green light lane are moving forward. The updating of all other cars requires the most work throughout each simulation state. This made us decide to parallelize all movement of cars happening outside of those moving because of the green light. By doing this, we make it so movement of cars in each lane is occurring in parallel, which is true for real traffic flow. So as cars move through the green light lanes, cars moving away and out of each road are being updated in parallel. To parallelize this aspect of the solution we parallelized the for loops responsible for updating each of the necessary areas of the road. OpenMP makes this process very simple to do, and because our project was extremely loop heavy, it makes it all the more viable of a tool. \\
+\hspace*{.2cm} Due to the logic heavy nature of the sequential solution, we had to decide on the most beneficial areas to parallel while keeping the integrity of the simulation. During any green light state in the simulation, the most work being done is happening on the outside, with cars driving away from the intersection or up to the intersection, while the cars in the green light lane are moving forward. The updating of all other cars requires the most work throughout each simulation state. This made us decide to parallelize all movement of cars happening outside of those moving because of the green light. By doing this, we make it so movement of cars in each lane is occurring in parallel, which is true for real traffic flow. So as cars move through the green light lanes, cars moving away and out of each road are being updated in parallel. To parallelize this aspect of the solution we parallelized the for loops responsible for updating each of the necessary areas of the road. OpenMP makes this process very simple to do, and because our project was extremely loop heavy, it makes it all the more viable of a tool.
 
 \hspace*{.2cm} After integrating our parallel solution into our sequential project, we tested our simulation with a varying number of threads and problem sizes using stampede, similar to our subproblem tests. We used input sizes ranging from $20$ to $200,000$ and varied the number of threads from 1 to 64. The results we got back are shown in Fig. 9. \\ \\
 
-\includegraphics[width=0.45\textwidth]{images/results}
+\includegraphics[width=0.45\textwidth]{images/results} \\
 \begin{center}
 	\textbf{Fig. 10} Parallel Simulation vs Sequential \\
 \end{center}
 
-\section{Summary of Results}
+
 \includegraphics[width=0.45\textwidth]{images/timeVSthreads}
+\begin{center}
+	\textbf{Fig. 11} Parallel Execution Timing Results \\
+\end{center}
+
+\section{Summary of Results}
+We observed that there were no performance benefits from using OpenMP based parallelization but rather our execution times got worse as we increased the number of threads. \\
+\hspace*{.2cm}But going in a little deeper and understanding the timings tells us there is more to the story. The parts of the program that were parallelized were the shifting array state shifts in the automata that transitioned the cars to their next state in one direction. To make these shifts, we go through numerous other calculations involving various primitive data types and conditional statements. So, even though the actual part of shifting arrays is parallelized it doesn't reflect on the timings as compared to the calculations, since the shift is a smaller part of the program. \\
+\hspace*{.2cm}The traffic simulation parallel project does the shift array differently from the serial program as it involves storing the elements of the array in a next state array in order to counter the loop carried dependencies. This is also an overhead in our parallelizing process, as duplicating the arrays for each state in the automata make the simulation slower. The parallelized version also has distinct OpenMP pragma calls for each of the lanes as the indexing inside the 'for' loops is handled differently. Hence, the parallel project pragma call couldn't be unified together. This results in a greater overhead of system calls for creation, separation, and termination of these threads. \\
+\hspace*{.2cm}The project also faces the problem of accessing the critical section for each state simulation, hence making it difficult to parallelize the movement of cars in each of the North, South, East and West lanes. All these lanes need to access the intersection, and the critical section for their state simulations. Hence the lane shifts if parallelized in the previous stated manner would have to wait to check and see if all other lanes have left the intersection before it access it for each discrete state. This is because each state uses the critical section for all other states in the system, even when parallelized by lanes, this almost results in an inherently sequential simulation. \\
+\hspace*{.2cm}Where this analysis does gets interesting, is by observing the percent change of execution time from the previous input size, per the number of threads: \\
+
+\includegraphics[width=0.45\textwidth]{images/percentChange}
+\begin{center}
+	\textbf{Fig. 12} Percent Change of Timing Results \\
+\end{center}
+
+As the thread count increases, and the input size increases, the percent change of execution time noticeably decreases.  With enough input, we predict that this will result in an eventual speed up, if the input size is large enough. As shown in the graph below, this trend can be observed: \\ \\
+\includegraphics[width=0.45\textwidth]{images/percentChangeGraph}
+\begin{center}
+	\textbf{Fig. 12} Percent Change of Timing Results Graph \\
+\end{center}
+
+The graph divides the rate of change of execution time for the input sizes into the various thread count levels. As the number of threads increases, and the input size increases, you can see the expected result of more sustainable scalability, and the potential for possible speed up. \\
 
 \section{Conclusions, Lessons Learned, and Future Work}
-\lipsum[5]
 
 \bibliographystyle{ieeetr}
 \bibliography{HPC_Project}
