@@ -57,7 +57,6 @@ The following is an overview of the remainder of the paper: Background research 
 
 
 \section{Background and Related Research}
-%%%%%%%%%\lipsum[2] \cite{Laszlo1996}
 Chances are if you have ridden in a vehicle, you have come across a four-way stop being controlled by traffic lights. A four-way traffic stop has roads leading from all four directions (North, South, East, West) where each direction takes a turn moving towards its destination as directed by the controlling traffic light. The traffic light operates in three states: red, green, and yellow. Green means go, red means stop, and yellow means slow down. Assuming each direction is at least a two-lane road, and ignoring the possibility for a one-way street, any car driving on the outer most lane is capable of taking a right turn at the traffic light intersection if oncoming traffic is clear, regardless of the state of the light. Cars in the innermost lanes are also capable of making a left turn, given that their light is currently green. The light itself cycles on a timer allowing for each lane to have its own turn to proceed, which creates the flow of traffic. This four-way model is what our simulation is derived from, which will be explained in a later section. \\
 
 The placement of cars along any road is relatable to a data model studied in computer science and related fields known as \textit{cellular automata}. Formally, cellular automata are defined as a collection of cells on a grid that evolves during a number of discrete time steps according to a set of rules based on the states of neighboring cells. The rules are then applied iteratively for as many time steps as desired \cite{WolframCellularAutomaton}. Cellular automata have been studied since the early 1950’s and was initially used as a model for biological systems. The lattice structure and discrete state like approach of cellular automata was taken and applied to our simulation to represent individual, discrete states of traffic flow and positions of cars within a street.  Another principle of cellular automatons is localized interactions with nearby cells.  Each car within this system must recognize the state of the cell that lies a step ahead in the direction it wishes to move in order to determine its next state. The different discrete representations of the states and interactions of the cars, the lights, traffic, and lanes in general will be explained later within the paper. \\
@@ -72,7 +71,7 @@ Where this research project attempts to differentiate itself is by simplifying s
 
 \section{Serialization Technique}
 
-\includegraphics[width=0.45\textwidth]{traffic}
+\includegraphics[width=0.45\textwidth]{images/traffic}
 \begin{center}
 	\textbf{Fig. 1} Overview of simulation  \\
 \end{center}
@@ -93,7 +92,7 @@ Another important aspect to consider when designing the simulation was how to ha
 
 \hspace*{.2cm} Two different approaches were used as input to populate our roads for simulation. The first was input by csv, where the csv was filled with numbers representing cars and could be read in to populate road data. 
 
-\includegraphics[width=0.45\textwidth]{input}
+\includegraphics[width=0.45\textwidth]{images/input}
 \begin{center}
 	\textbf{Fig. 2} Example input file  \\
 \end{center}
@@ -102,7 +101,7 @@ This input was useful when testing on smaller inputs and at the beginning of log
 
 \hspace*{.2cm} To confirm correctness of development, an important output function was also created. The main version of output, which cleanly represents a traffic simulation, was done using UTF-8 characters to represent lights and prints to the console showing an overhead view of a current traffic state. \\
 
-\includegraphics[width=0.45\textwidth]{output}
+\includegraphics[width=0.45\textwidth]{images/output}
 \begin{center}
 	\textbf{Fig. 3} Example simulation output  \\
 \end{center}
@@ -120,21 +119,21 @@ Clear time $= sleep time \cdot 4$ \\
 
 where $factor$ is scaled to the size of the simulation. Clear time is always set to 4 because the intersection size is constant and any car would need at most 4 states to move out of the intersection point. \\
 
-\includegraphics[width=0.45\textwidth]{green}
+\includegraphics[width=0.45\textwidth]{images/green}
 \begin{center}
 	\textbf{Fig. 4} State during green light  \\
 \end{center}
 
 The above figure (Fig. 4) represents the simulation during a green light, where cars moving to the east are allowed to move forward. Cars in other lanes must wait unless they are turning red, which you see waiting behind each red light. \\
 
-\includegraphics[width=0.45\textwidth]{yellow}
+\includegraphics[width=0.45\textwidth]{images/yellow}
 \begin{center}
 	\textbf{Fig. 5} State during yellow light  \\
 \end{center}
 
 The next figure (Fig. 5) represents the simulation during a state of intersection clearing, or the yellow light state. During this time period, any cars within the intersection are moved forward to clear the road for the next light, which will be shown in the following image. \\
 
-\includegraphics[width=0.45\textwidth]{red}
+\includegraphics[width=0.45\textwidth]{images/red}
 \begin{center}
 	\textbf{Fig. 6} State during light change  \\
 \end{center}
@@ -152,7 +151,7 @@ Once a yellow light is finished, the next light is set to green and those cars a
 \section{Parallelization Technique}
 During the serial design of the traffic simulation, we kept track of areas that would be best to add parallelization too. One of the beneficial aspects of OpenMP is the ability to develop a sequential solution to a problem and work inside out of the design to make it parallel, which is the exact approach we took. There is one major computation step that our entire traffic simulation depends on: array shifting. 
 
-\includegraphics[width=0.45\textwidth]{arrayShift}
+\includegraphics[width=0.45\textwidth]{images/arrayShift}
 \begin{center}
 	\textbf{Fig. 7} Example of shifting an array. \\
 \end{center}
@@ -161,7 +160,7 @@ The shifting of arrays to move cars state to state is the bulk of the simulation
 
 \hspace*{.2cm} Before being able to create and test the shifting of arrays in parallel, we had to fix one major issue that occurs during the parallelization of this type of problem, which was a loop carried dependency. The shifting of arrays depends on the ability of one state to look ahead or behind one iteration to move to the next spot.In other words, the current loop iteration looks ahead or behind one iteration to make the update. In a parallel design of array shifting, the process of shifting each position in the array would be divided among $p$ processes, which results in the following problem:
 
-\includegraphics[width=0.45\textwidth]{dependency}
+\includegraphics[width=0.45\textwidth]{images/dependency}
 \begin{center}
 	\textbf{Fig. 8} Loop carried dependency \\
 \end{center}
@@ -172,27 +171,60 @@ Suppose there is an array of size 9 split up among 3 processes as seen in Fig. 7
 
 \hspace*{.2cm} After solving this issue we ran subproblems of our simulation by testing the shifting of an array of size $20,000,000$ using a varying number of threads in OpenMP vs. Shifting sequentially. The timing results of these tests are shown in Fig. 8. \\
 
-\includegraphics[width=0.45\textwidth]{subtest}
+\includegraphics[width=0.45\textwidth]{images/subtest}
 \begin{center}
 	\textbf{Fig. 9} Parallel vs Sequential array shift \\
 \end{center}
 
 The number of threads performing the shift we varied from 1 to 64. The results show that a performance benefit started to occur immediately with the addition of a second thread. As the number of threads increased the performance also steadily grew compared to the results of the sequential shift. With these results we were able to confirm the parallelization technique we would be using and begin integrating into our actual simulation. \\
+\hspace*{.2cm} Due to the logic heavy nature of the sequential solution, we had to decide on the most beneficial areas to parallel while keeping the integrity of the simulation. During any green light state in the simulation, the most work being done is happening on the outside, with cars driving away from the intersection or up to the intersection, while the cars in the green light lane are moving forward. The updating of all other cars requires the most work throughout each simulation state. This made us decide to parallelize all movement of cars happening outside of those moving because of the green light. By doing this, we make it so movement of cars in each lane is occurring in parallel, which is true for real traffic flow. So as cars move through the green light lanes, cars moving away and out of each road are being updated in parallel. To parallelize this aspect of the solution we parallelized the for loops responsible for updating each of the necessary areas of the road. OpenMP makes this process very simple to do, and because our project was extremely loop heavy, it makes it all the more viable of a tool.
 
-\hspace*{.2cm} Due to the logic heavy nature of the sequential solution, we had to decide on the most beneficial areas to parallel while keeping the integrity of the simulation. During any green light state in the simulation, the most work being done is happening on the outside, with cars driving away from the intersection or up to the intersection, while the cars in the green light lane are moving forward. The updating of all other cars requires the most work throughout each simulation state. This made us decide to parallelize all movement of cars happening outside of those moving because of the green light. By doing this, we make it so movement of cars in each lane is occurring in parallel, which is true for real traffic flow. So as cars move through the green light lanes, cars moving away and out of each road are being updated in parallel. To parallelize this aspect of the solution we parallelized the for loops responsible for updating each of the necessary areas of the road. OpenMP makes this process very simple to do, and because our project was extremely loop heavy, it makes it all the more viable of a tool. \\
+\hspace*{.2cm} After integrating our parallel solution into our sequential project, we tested our simulation with a varying number of threads and problem sizes using stampede, similar to our subproblem tests. We used input sizes ranging from $20$ to $200,000$ and varied the number of threads from 1 to 64. The results we got back are shown in Fig. 9. \\ \\
 
-\hspace*{.2cm} After integrating our parallel solution into our sequential project, we tested our simulation with a varying number of threads and problem sizes using stampede, similar to our subproblem tests. We used input sizes ranging from $20$ to $200,000$ and varied the number of threads from 1 to 64. The results we got back are shown in Fig. 9. \\
-
-\includegraphics[width=0.45\textwidth]{results}
+\includegraphics[width=0.45\textwidth]{images/results} \\
 \begin{center}
 	\textbf{Fig. 10} Parallel Simulation vs Sequential \\
 \end{center}
 
+
+\includegraphics[width=0.45\textwidth]{images/timeVSthreads}
+\begin{center}
+	\textbf{Fig. 11} Parallel Execution Timing Results \\
+\end{center}
+
 \section{Summary of Results}
-\lipsum[4]
+We observed that there were no performance benefits from using OpenMP based parallelization but rather our execution times got worse as we increased the number of threads. \\
+
+\hspace*{.2cm}But going in a little deeper and understanding the timings tells us there is more to the story. The parts of the program that were parallelized were the shifting array state shifts in the automata that transitioned the cars to their next state in one direction. To make these shifts, we go through numerous other calculations involving various primitive data types and conditional statements. So, even though the actual part of shifting arrays is parallelized it doesn't reflect on the timings as compared to the calculations, since the shift is a smaller part of the program. \\
+
+\hspace*{.2cm}The traffic simulation parallel project does the shift array differently from the serial program as it involves storing the elements of the array in a next state array in order to counter the loop carried dependencies. This is also an overhead in our parallelizing process, as duplicating the arrays for each state in the automata make the simulation slower. The parallelized version also has distinct OpenMP pragma calls for each of the lanes as the indexing inside the 'for' loops is handled differently. Hence, the parallel project pragma call couldn't be unified together. This results in a greater overhead of system calls for creation, separation, and termination of these threads. \\
+
+\hspace*{.2cm}The project also faces the problem of accessing the critical section for each state simulation, hence making it difficult to parallelize the movement of cars in each of the North, South, East and West lanes. All these lanes need to access the intersection, and the critical section for their state simulations. Hence the lane shifts if parallelized in the previous stated manner would have to wait to check and see if all other lanes have left the intersection before it access it for each discrete state. This is because each state uses the critical section for all other states in the system, even when parallelized by lanes, this almost results in an inherently sequential simulation. \\
+
+\hspace*{.2cm}Where this analysis does gets interesting, is by observing the percent change of execution time from the previous input size, per the number of threads: \\
+
+\includegraphics[width=0.45\textwidth]{images/percentChange}
+\begin{center}
+	\textbf{Fig. 12} Percent Change of Timing Results \\
+\end{center}
+
+As the thread count increases, and the input size increases, the percent change of execution time noticeably decreases.  With enough input, we predict that this will result in an eventual speed up, if the input size is large enough. As shown in the graph below, this trend can be observed: \\ \\
+\includegraphics[width=0.45\textwidth]{images/percentChangeGraph}
+\begin{center}
+	\textbf{Fig. 12} Percent Change of Timing Results Graph \\
+\end{center}
+
+The graph divides the rate of change of execution time for the input sizes into the various thread count levels. As the number of threads increases, and the input size increases, you can see the expected result of more sustainable scalability, and the potential for possible speed up. \\
 
 \section{Conclusions, Lessons Learned, and Future Work}
-\lipsum[5]
+To summarize, this project was an attempt on parallelizing the discrete state transitions in a cellular automaton-based traffic simulation. Traditional parallelization attempt to decompose the system and predict next states, where this simulation keeps the system unified. \\
+
+Our results show that the execution of the model with an increasing number of threads and input size results in a monumental increase in execution time. This was due to our limited computational power and time. To gain further insight, we would like to continue running this simulation for input sizes of 2,000,000 all the way to 2,000,000,000 to see how execution time scales.  When we ran state simulation change tests, we found that the shift array operation that we parallelized had noticeable performance increases after an input size 20,000,000 as the number of threads was increased. We predict a similar critical point for our simulation. Where our project did succeed was starting to see a decrease in the relative percent change of execution time as the input size was increased. Sequential scaled very poorly, and as more threads were added, the scalability was improved. \\
+
+In the future, simulations should be run and repeated with large variations from small to massive input sizes. Our results and analysis were limited by the time and computational power available to us. More executions of the same size would provide more solidified and accurate execution timing results. Another analysis we would have liked to include would be comparing the timing of a similar input and simulation to a program that uses a decomposition technique to see how the execution times and scalability would differ. \\
+
+For future work, in terms of simulation logic, we would like to implement more unpredictable factors in the model such as acceleration, lane changes, relative light timings based on the car counts in each lane, etc.  This would make the automaton less stable, and would be interesting to see how it would be able to scale with our approach, or if a decomposed system is truly the best technique for a parallelized traffic simulation.\\
+
 
 \bibliographystyle{ieeetr}
 \bibliography{HPC_Project}
