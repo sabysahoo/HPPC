@@ -9,5 +9,10 @@ Build and execute:
 make
 ./traffic [Input CSV File Path]
 ```
+or 
+make
+./traffic [Road_size] 
+```
+
 ## Group Members:
 Bradley Schoeneweis, Saby Sahoo, Zach Alaniz
