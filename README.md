@@ -9,6 +9,7 @@ Build and execute:
 make
 ./traffic [Input CSV File Path]
 ```
+```
 or 
 make
 ./traffic [Road_size] 
